@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>緊急救護 OHCA 儀表板</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap');
+  :root {
+    --bg:#0a0f1e; --surface:#111827; --surface2:#1a2235; --border:#1e2d45;
+    --accent:#00d4ff; --accent2:#ff6b6b; --accent3:#ffd166; --accent4:#06d6a0;
+    --metro:#f97316; --county:#818cf8; --text:#e2e8f0; --text-muted:#64748b;
+    --amber:#f59e0b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  .wrapper{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:24px 20px;}
+
+  header{border-bottom:1px solid var(--border);padding-bottom:20px;margin-bottom:28px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .header-left h1{font-size:1.6rem;font-weight:900;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--accent),#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;}
+  .header-left p{font-size:0.78rem;color:var(--text-muted);margin-top:4px;font-family:'DM Mono',monospace;}
+  .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+  .header-badge{background:linear-gradient(135deg,rgba(0,212,255,0.12),rgba(124,58,237,0.12));border:1px solid rgba(0,212,255,0.3);padding:6px 14px;border-radius:20px;font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--accent);}
+
+  /* YEAR TABS */
+  .year-tabs{display:flex;align-items:center;gap:6px;}
+  .year-tabs-label{font-size:0.68rem;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-right:4px;}
+  .year-tab{padding:5px 14px;border-radius:20px;font-size:0.75rem;cursor:pointer;font-family:'DM Mono',monospace;border:1.5px solid;transition:all 0.2s;font-weight:600;background:transparent;}
+  .year-tab.y114{border-color:var(--accent);color:var(--text-muted);}
+  .year-tab.y114.active{background:rgba(0,212,255,0.12);color:var(--accent);}
+  .year-tab.y113{border-color:var(--amber);color:var(--text-muted);}
+  .year-tab.y113.active{background:rgba(245,158,11,0.12);color:var(--amber);}
+
+  /* YEAR BANNER */
+  .year-banner{background:linear-gradient(135deg,rgba(245,158,11,0.07),rgba(249,115,22,0.05));border:1px solid rgba(245,158,11,0.25);border-left:3px solid var(--amber);border-radius:10px;padding:12px 20px;margin-bottom:20px;font-size:0.82rem;line-height:1.8;color:var(--text);display:none;}
+  .year-banner.show{display:block;}
+
+  /* SELECTOR */
+  .selector-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:24px;}
+  .selector-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
+  .selector-top label{font-size:0.78rem;color:var(--text-muted);font-weight:600;white-space:nowrap;}
+  .group-btn{padding:5px 14px;border-radius:20px;font-size:0.75rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif;border:1.5px solid var(--border);transition:all 0.18s;font-weight:600;background:var(--surface2);color:var(--text-muted);}
+  .group-btn.national.active{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,0.12);}
+  .group-btn.national:hover{border-color:var(--accent);color:var(--accent);}
+  .group-btn.metro.active{border-color:var(--metro);color:var(--metro);background:rgba(249,115,22,0.15);}
+  .group-btn.metro:hover{border-color:var(--metro);color:var(--metro);}
+  .group-btn.county.active{border-color:var(--county);color:var(--county);background:rgba(129,140,248,0.15);}
+  .group-btn.county:hover{border-color:var(--county);color:var(--county);}
+  .selector-groups{display:flex;gap:28px;flex-wrap:wrap;}
+  .selector-group{display:flex;flex-direction:column;gap:7px;}
+  .group-label{font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+  .dot-metro{background:var(--metro);}
+  .dot-county{background:var(--county);}
+  .btn-row{display:flex;gap:6px;flex-wrap:wrap;}
+  .btn-region{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:5px 12px;border-radius:7px;font-size:0.76rem;cursor:pointer;transition:all 0.18s;font-family:'Noto Sans TC',sans-serif;white-space:nowrap;}
+  .btn-region:hover{color:var(--text);border-color:#334155;}
+  .btn-region.active-metro{background:rgba(249,115,22,0.15);border-color:var(--metro);color:var(--metro);font-weight:700;}
+  .btn-region.active-county{background:rgba(129,140,248,0.15);border-color:var(--county);color:var(--county);font-weight:700;}
+  .btn-region.active-national{background:rgba(0,212,255,0.12);border-color:var(--accent);color:var(--accent);font-weight:700;}
+
+  /* SECTION HEADER */
+  .section-header{font-size:0.7rem;font-weight:700;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+  .section-header::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;display:inline-block;}
+  .section-header.amber-bar::before{background:var(--amber);}
+
+  /* KPI */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px;}
+  .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;}
+  .kpi-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .kpi-card.blue::before{background:linear-gradient(90deg,var(--accent),transparent);}
+  .kpi-card.red::before{background:linear-gradient(90deg,var(--accent2),transparent);}
+  .kpi-card.yellow::before{background:linear-gradient(90deg,var(--accent3),transparent);}
+  .kpi-card.green::before{background:linear-gradient(90deg,var(--accent4),transparent);}
+  .kpi-card.purple::before{background:linear-gradient(90deg,#a855f7,transparent);}
+  .kpi-card.orange::before{background:linear-gradient(90deg,var(--metro),transparent);}
+  .kpi-card.violet::before{background:linear-gradient(90deg,var(--county),transparent);}
+  .kpi-card.amber::before{background:linear-gradient(90deg,var(--amber),transparent);}
+  .kpi-label{font-size:0.7rem;color:var(--text-muted);font-weight:600;margin-bottom:8px;letter-spacing:0.05em;text-transform:uppercase;}
+  .kpi-value{font-size:2.2rem;font-weight:900;line-height:1;font-family:'DM Mono',monospace;}
+  .kpi-card.blue .kpi-value{color:var(--accent);}
+  .kpi-card.red .kpi-value{color:var(--accent2);}
+  .kpi-card.yellow .kpi-value{color:var(--accent3);}
+  .kpi-card.green .kpi-value{color:var(--accent4);}
+  .kpi-card.purple .kpi-value{color:#a855f7;}
+  .kpi-card.orange .kpi-value{color:var(--metro);}
+  .kpi-card.violet .kpi-value{color:var(--county);}
+  .kpi-card.amber .kpi-value{color:var(--amber);}
+  .kpi-sub{font-size:0.7rem;color:var(--text-muted);margin-top:6px;font-family:'DM Mono',monospace;}
+  .kpi-badge{position:absolute;top:11px;right:11px;font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:0.05em;}
+  .kpi-badge.metro{background:rgba(249,115,22,0.18);color:var(--metro);border:1px solid rgba(249,115,22,0.4);}
+  .kpi-badge.county{background:rgba(129,140,248,0.18);color:var(--county);border:1px solid rgba(129,140,248,0.4);}
+  .kpi-badge.ref{background:rgba(245,158,11,0.18);color:var(--amber);border:1px solid rgba(245,158,11,0.4);}
+  /* KPI active highlight */
+  .kpi-card.kpi-active{transform:translateY(-3px);box-shadow:0 0 0 2px var(--kpi-glow,var(--accent)),0 10px 36px rgba(0,0,0,0.5);}
+  .kpi-card.blue.kpi-active{--kpi-glow:var(--accent);}
+  .kpi-card.yellow.kpi-active{--kpi-glow:var(--accent3);}
+  .kpi-card.purple.kpi-active{--kpi-glow:#a855f7;}
+  .kpi-card.green.kpi-active{--kpi-glow:var(--accent4);}
+  .kpi-card.red.kpi-active{--kpi-glow:var(--accent2);}
+  .kpi-card.orange.kpi-active{--kpi-glow:var(--metro);}
+  .kpi-card.violet.kpi-active{--kpi-glow:var(--county);}
+  .kpi-card.amber.kpi-active{--kpi-glow:var(--amber);}
+  .kpi-hint{font-size:0.6rem;color:var(--text-muted);margin-top:4px;opacity:0.7;}
+
+  /* CALLOUT */
+  .callout-box{background:linear-gradient(135deg,rgba(249,115,22,0.06),rgba(129,140,248,0.06));border:1px solid rgba(249,115,22,0.22);border-left:3px solid var(--metro);border-radius:10px;padding:16px 20px;margin-bottom:24px;font-size:0.82rem;line-height:1.8;color:var(--text);}
+  .callout-box .rm{color:var(--metro);font-weight:700;font-family:'DM Mono',monospace;}
+  .callout-box .rc{color:var(--county);font-weight:700;font-family:'DM Mono',monospace;}
+  .callout-box strong{color:var(--accent3);}
+
+  /* CHART CARDS */
+  .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+  .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;}
+  .chart-card.metro-border{border-top:2px solid var(--metro);}
+  .chart-card.county-border{border-top:2px solid var(--county);}
+  .chart-card.amber-border{border-top:2px solid var(--amber);}
+  .chart-title{font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:3px;}
+  .chart-subtitle{font-size:0.7rem;color:var(--text-muted);margin-bottom:14px;font-family:'DM Mono',monospace;}
+  canvas{max-width:100%;}
+
+  /* TABLE */
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:0.77rem;}
+  thead th{background:var(--surface2);border-bottom:1px solid var(--border);padding:9px 12px;text-align:right;font-weight:700;font-size:0.69rem;color:var(--text-muted);letter-spacing:0.03em;white-space:nowrap;transition:background 0.2s,color 0.2s;}
+  thead th:first-child{text-align:left;}
+  tbody tr{border-bottom:1px solid rgba(30,45,69,0.5);transition:background 0.15s;}
+  tbody tr:hover{background:rgba(255,255,255,0.025);}
+  tbody tr.rh-metro{background:rgba(249,115,22,0.07);}
+  tbody tr.rh-county{background:rgba(129,140,248,0.07);}
+  tbody td{padding:8px 12px;text-align:right;white-space:nowrap;font-family:'DM Mono',monospace;transition:background 0.2s;}
+  tbody td:first-child{text-align:left;font-family:'Noto Sans TC',sans-serif;font-weight:500;}
+  .tag-good{color:var(--accent4);font-weight:700;}
+  .tag-warn{color:var(--accent3);font-weight:700;}
+  .tag-bad{color:var(--accent2);font-weight:700;}
+  .tag-amber{color:var(--amber);font-weight:700;}
+  .tag-na{color:var(--text-muted);font-style:italic;font-size:0.68rem;}
+  .tgh td{background:var(--surface2)!important;font-size:0.67rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-align:left!important;padding:7px 12px;border-bottom:1px solid var(--border);}
+  .bar-wrap{display:flex;align-items:center;gap:7px;justify-content:flex-end;}
+  .bar-track{width:52px;height:5px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;}
+  .note-box{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.12);border-radius:8px;padding:12px 16px;font-size:0.73rem;color:var(--text-muted);margin-top:16px;line-height:1.7;}
+  /* Column highlight */
+  td.col-hl,th.col-hl{background:rgba(0,212,255,0.09)!important;color:var(--accent)!important;}
+  td.col-hl-amber,th.col-hl-amber{background:rgba(245,158,11,0.09)!important;color:var(--amber)!important;}
+
+  /* OHCA CONTENT dimming for 113 year */
+  #ohcaContent{transition:opacity 0.3s;}
+  #ohcaContent.dimmed{opacity:0.12;pointer-events:none;user-select:none;}
+
+  /* y112 year tab */
+  .year-tab.y112{border-color:#34d399;color:var(--text-muted);}
+  .year-tab.y112.active{background:rgba(52,211,153,0.12);color:#34d399;}
+  .year-tab.trend{border-color:#7c3aed;color:var(--text-muted);}
+  .year-tab.trend.active{background:rgba(124,58,237,0.15);color:#a78bfa;}
+  #ohcaContent{transition:opacity 0.3s;}
+  .trend-page{padding-top:8px;}
+  .trend-region-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .trend-region-wrap label{font-size:0.75rem;color:var(--text-muted);font-weight:600;margin-right:4px;}
+  .charts-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;}
+  @media(max-width:1100px){.charts-grid-3{grid-template-columns:1fr 1fr;}}
+  @media(max-width:900px){.charts-grid{grid-template-columns:1fr;}.kpi-value{font-size:1.8rem;}.charts-grid-3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<header>
+  <div class="header-left">
+    <h1>🚑 消防緊急救護 OHCA 儀表板</h1>
+    <p id="yearSubtitle">中華民國114年（2025）1月至12月 ‧ 到院前心肺功能停止傷病患統計</p>
+  </div>
+  <div class="header-right">
+    <div class="year-tabs">
+      <span class="year-tabs-label">年份</span>
+      <button class="year-tab y112" onclick="switchYear('112年')">112年 2023</button>
+      <button class="year-tab y113" onclick="switchYear('113年')">113年 2024</button>
+      <button class="year-tab y114 active" onclick="switchYear('114年')">114年 2025</button>
+      <button class="year-tab trend" onclick="showTrend()">📈 年度趨勢</button>
+    </div>
+    <div class="header-badge">資料來源：內政部消防署</div>
+  </div>
+</header>
+
+<div class="year-banner" id="yearBanner"></div>
+
+<div class="selector-wrap">
+  <div class="selector-top">
+    <label>選擇地區：</label>
+    <button class="group-btn national active" onclick="selectRegion('全國')">🌐 全國總計</button>
+    <button class="group-btn metro" id="btnGroupMetro" onclick="selectGroup('metro')">🏙 全部直轄市</button>
+    <button class="group-btn county" id="btnGroupCounty" onclick="selectGroup('county')">🗾 全部縣市</button>
+  </div>
+  <div class="selector-groups">
+    <div class="selector-group">
+      <div class="group-label" style="color:var(--metro)"><span class="dot dot-metro"></span>直轄市 Metropolitan</div>
+      <div class="btn-row" id="metroButtons"></div>
+    </div>
+    <div class="selector-group">
+      <div class="group-label" style="color:var(--county)"><span class="dot dot-county"></span>縣市 Counties &amp; Cities</div>
+      <div class="btn-row" id="countyButtons"></div>
+    </div>
+  </div>
+</div>
+
+<div id="mainContent">
+<div class="section-header" id="kpiLabel">核心指標 — 全國</div>
+<div class="kpi-grid" id="kpiGrid"></div>
+<p style="font-size:0.65rem;color:var(--text-muted);margin-top:-16px;margin-bottom:20px;padding-left:2px;">💡 點選指標卡可在下方表格中高亮對應欄位</p>
+
+<div id="ohcaContent">
+
+<div id="cprSection">
+<div class="callout-box">
+  <strong>📊 旁觀者 CPR 率 ＆ PAD 使用率 — 直轄市 vs 縣市</strong><br>
+  各縣市旁觀者CPR率介於約 <span class="rc">38–67%</span>，直轄市普遍達 <span class="rm">49–77%</span>，且逐年上升。114年全國旁觀者CPR率58.8%（112年58.5%、113年59.3%）。PAD使用率全國約6%，各縣市差異顯著，持續推廣AED教育訓練有助提升。
+</div>
+
+<div class="section-header">旁觀者 CPR 率 ＆ PAD 使用率</div>
+<div class="charts-grid">
+  <div class="chart-card metro-border">
+    <div class="chart-title">🏙 直轄市 — 旁觀者CPR率 ＆ PAD使用率</div>
+    <div class="chart-subtitle">分母：到院前心肺功能停止人次</div>
+    <canvas id="chartCprMetro" height="210"></canvas>
+  </div>
+  <div class="chart-card county-border">
+    <div class="chart-title">🗾 縣市 — 旁觀者CPR率 ＆ PAD使用率</div>
+    <div class="chart-subtitle">分母：到院前心肺功能停止人次</div>
+    <canvas id="chartCprCounty" height="210"></canvas>
+  </div>
+</div>
+
+</div><!-- end cprSection -->
+<div class="section-header">急救成功率 ＆ 康復出院率</div>
+<div class="charts-grid">
+  <div class="chart-card metro-border">
+    <div class="chart-title">🏙 直轄市 — 急救成功率 ＆ 康復出院率</div>
+    <div class="chart-subtitle">各直轄市百分比（%）</div>
+    <canvas id="chartSuccessMetro" height="210"></canvas>
+  </div>
+  <div class="chart-card county-border">
+    <div class="chart-title">🗾 縣市 — 急救成功率 ＆ 康復出院率</div>
+    <div class="chart-subtitle">各縣市百分比（%）</div>
+    <canvas id="chartSuccessCounty" height="210"></canvas>
+  </div>
+</div>
+
+<div class="charts-grid">
+  <div class="chart-card" id="locationSection">
+    <div class="chart-title">事故地點型態分析</div>
+    <div class="chart-subtitle" id="locationSubtitle">全國 OHCA 事故地點分布</div>
+    <canvas id="chartLocation" height="260"></canvas>
+    <div id="locationNA" style="display:none;text-align:center;padding:60px 0;color:var(--text-muted);font-size:0.82rem;">本年度事故地點資料未收錄</div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">每十萬人口康復出院數</div>
+    <div class="chart-subtitle" id="perCapitaSubtitle"><span style="color:var(--metro)">🟠 直轄市</span> ／ <span style="color:var(--county)">🟣 縣市</span>（114年人口為分母）</div>
+    <canvas id="chartPerCapita" height="260"></canvas>
+  </div>
+</div>
+
+<div class="chart-card" id="monthlyCard" style="display:none;margin-bottom:20px;">
+  <div class="chart-title" id="monthlyTitle">月別趨勢</div>
+  <div class="chart-subtitle">OHCA人次、急救成功、康復出院</div>
+  <canvas id="chartMonthly" height="130"></canvas>
+</div>
+
+</div><!-- end ohcaContent -->
+
+<!-- UTSTEIN SECTION (year-aware) -->
+<div class="section-header amber-bar" id="utsteinSectionHeader" style="margin-top:8px;">Utstein 存活率 — 目擊型且旁觀者CPR存活率（113年 2024 資料）</div>
+<div class="charts-grid" id="utsteinCharts" style="margin-bottom:20px;">
+  <div class="chart-card metro-border" style="border-top-color:var(--amber);">
+    <div class="chart-title" id="utsteinMetroTitle">🏙 直轄市 — Utstein 存活率（113年）</div>
+    <div class="chart-subtitle">目擊AED可電擊心律 → 存活出院（CPC1-4）÷ 目擊可電擊心律人次</div>
+    <canvas id="chartUtsteinMetro" height="200"></canvas>
+  </div>
+  <div class="chart-card county-border" style="border-top-color:var(--amber);">
+    <div class="chart-title" id="utsteinCountyTitle">🗾 縣市 — Utstein 存活率（113年）</div>
+    <div class="chart-subtitle">目擊AED可電擊心律 → 存活出院（CPC1-4）÷ 目擊可電擊心律人次</div>
+    <canvas id="chartUtsteinCounty" height="200"></canvas>
+  </div>
+</div>
+<div id="utsteinNoData" class="note-box" style="display:none;text-align:center;color:var(--text-muted);margin:-8px 0 20px 0;">本年度無 Utstein 存活率資料</div>
+
+<div class="section-header">各縣市完整比較表</div>
+<div class="chart-card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-col="0">縣市別</th>
+          <th data-col="1">OHCA人次</th>
+          <th data-col="2">旁觀者CPR</th>
+          <th data-col="3">CPR率</th>
+          <th data-col="4">PAD使用</th>
+          <th data-col="5">PAD率</th>
+          <th data-col="6">急救成功</th>
+          <th data-col="7">成功率</th>
+          <th data-col="8">康復出院</th>
+          <th data-col="9">出院率</th>
+          <th data-col="10">每10萬人出院</th>
+          <th data-col="11" style="color:var(--amber);border-left:1px solid rgba(245,158,11,0.3);">Utstein率<br><span style="font-weight:400;opacity:0.7" id="utsteinColYear">(113年)</span></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <div class="note-box">
+    📋 <strong>定義說明：</strong>
+    旁觀者CPR率 = 有旁觀者CPR人次 ÷ OHCA人次；PAD使用率 = 有使用PAD人次 ÷ OHCA人次；
+    急救成功率 = 到院前ROSC人次 ÷ OHCA人次；康復出院率 = 康復出院人數（CPC1/2）÷ OHCA人次；
+    每10萬人口康復出院數 = 康復出院人數 ÷ 人口數 × 100,000（人口數：各年度12月戶籍速報）。<br>
+    ⚓ <strong>全國數值含港務消防大隊</strong>（114年：OHCA +26，其他年度差異請參考各年度報告）。<br>
+    <span style="color:var(--amber)" id="utsteinLegendText">🟡 Utstein 存活率（113年）</span> = 存活出院（CPC1-4）÷ 目擊AED可電擊心律人次 ｜ <span id="utsteinLegendNote">連江縣：目擊可電擊心律 0 人次，無法計算存活率。</span><br>
+    <span style="color:var(--metro)">🟠 橘色 = 直轄市</span>　<span style="color:var(--county)">🟣 紫色 = 縣市</span>
+  </div>
+</div>
+
+</div><!-- end mainContent -->
+
+<!-- TREND PAGE -->
+<div id="trendContent" style="display:none;" class="trend-page">
+  <div class="section-header" id="trendTitle" style="font-size:0.85rem;font-weight:700;">年度趨勢 — 全國</div>
+
+  <div class="charts-grid-3">
+    <div class="chart-card">
+      <div class="chart-title">OHCA 人次趨勢</div>
+      <div class="chart-subtitle" id="trendOhcaSubtitle">到院前心肺功能停止（含港消）</div>
+      <canvas id="chartTrendOhca" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">急救成功率 ＆ 康復出院率趨勢</div>
+      <div class="chart-subtitle">急救成功率（紅）、康復出院率（綠）</div>
+      <canvas id="chartTrendRates" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">每10萬人口康復出院數趨勢</div>
+      <div class="chart-subtitle">康復出院人數 ÷ 年底戶籍人口 × 100,000</div>
+      <canvas id="chartTrendPerCap" height="220"></canvas>
+    </div>
+  </div>
+  <div class="note-box">
+    📋 <strong>趨勢頁說明：</strong>
+    全國資料涵蓋104年至114年（11年）；縣市資料依現有數據呈現。
+    112年縣市每10萬人口出院數由各縣市康復出院人數÷112年12月戶籍人口計算。
+    112年縣市OHCA人次已更新（來源：010300月報），康復出院率可計算；急救成功率（total ROSC）縣市資料未收錄。
+    旁觀者CPR率、PAD使用率、ROSC率：112–114年縣市資料均已收錄（來源：消防署月報10983-01-03）。
+  </div>
+</div>
+
+</div><!-- end wrapper -->
+<script>
+const METRO=['新北市','臺北市','桃園市','臺中市','臺南市','高雄市'];
+const COUNTIES=['宜蘭縣','新竹縣','苗栗縣','彰化縣','南投縣','雲林縣','嘉義縣','屏東縣','臺東縣','花蓮縣','澎湖縣','基隆市','新竹市','嘉義市','金門縣','連江縣'];
+
+// ===== MULTI-YEAR DATA =====
+const ohcaDataAll={
+  '114年':{
+    '全國':{ohca:18275,bystander_cpr:10747,pad:1155,rosc:2320},
+    '新北市':{ohca:2539,bystander_cpr:1522,pad:99,rosc:344},
+    '臺北市':{ohca:1828,bystander_cpr:958,pad:114,rosc:263},
+    '桃園市':{ohca:1732,bystander_cpr:1239,pad:142,rosc:271},
+    '臺中市':{ohca:2242,bystander_cpr:1681,pad:100,rosc:563},
+    '臺南市':{ohca:1512,bystander_cpr:848,pad:52,rosc:217},
+    '高雄市':{ohca:1537,bystander_cpr:759,pad:91,rosc:85},
+    '宜蘭縣':{ohca:455,bystander_cpr:241,pad:59,rosc:43},
+    '新竹縣':{ohca:482,bystander_cpr:321,pad:57,rosc:61},
+    '苗栗縣':{ohca:495,bystander_cpr:268,pad:48,rosc:18},
+    '彰化縣':{ohca:1106,bystander_cpr:485,pad:24,rosc:33},
+    '南投縣':{ohca:548,bystander_cpr:337,pad:71,rosc:54},
+    '雲林縣':{ohca:613,bystander_cpr:302,pad:3,rosc:32},
+    '嘉義縣':{ohca:551,bystander_cpr:315,pad:79,rosc:34},
+    '屏東縣':{ohca:986,bystander_cpr:548,pad:92,rosc:64},
+    '臺東縣':{ohca:233,bystander_cpr:129,pad:8,rosc:52},
+    '花蓮縣':{ohca:419,bystander_cpr:245,pad:32,rosc:100},
+    '澎湖縣':{ohca:89,bystander_cpr:39,pad:15,rosc:9},
+    '基隆市':{ohca:257,bystander_cpr:120,pad:15,rosc:8},
+    '新竹市':{ohca:273,bystander_cpr:160,pad:29,rosc:32},
+    '嘉義市':{ohca:250,bystander_cpr:157,pad:12,rosc:28},
+    '金門縣':{ohca:89,bystander_cpr:57,pad:8,rosc:4},
+    '連江縣':{ohca:13,bystander_cpr:5,pad:1,rosc:2},
+  },
+  '113年':{
+    '全國':{ohca:18455,bystander_cpr:10937,pad:1119,rosc:2062},
+    '新北市':{ohca:2509,bystander_cpr:1477,pad:72,rosc:353},
+    '臺北市':{ohca:1837,bystander_cpr:1006,pad:94,rosc:233},
+    '桃園市':{ohca:1881,bystander_cpr:1400,pad:116,rosc:264},
+    '臺中市':{ohca:2198,bystander_cpr:1678,pad:110,rosc:444},
+    '臺南市':{ohca:1487,bystander_cpr:859,pad:51,rosc:172},
+    '高雄市':{ohca:1533,bystander_cpr:770,pad:87,rosc:75},
+    '宜蘭縣':{ohca:463,bystander_cpr:260,pad:50,rosc:32},
+    '新竹縣':{ohca:495,bystander_cpr:349,pad:36,rosc:57},
+    '苗栗縣':{ohca:539,bystander_cpr:277,pad:50,rosc:24},
+    '彰化縣':{ohca:1064,bystander_cpr:431,pad:18,rosc:31},
+    '南投縣':{ohca:509,bystander_cpr:324,pad:89,rosc:42},
+    '雲林縣':{ohca:661,bystander_cpr:347,pad:10,rosc:42},
+    '嘉義縣':{ohca:554,bystander_cpr:268,pad:79,rosc:20},
+    '屏東縣':{ohca:957,bystander_cpr:517,pad:107,rosc:35},
+    '臺東縣':{ohca:249,bystander_cpr:144,pad:5,rosc:42},
+    '花蓮縣':{ohca:431,bystander_cpr:228,pad:48,rosc:110},
+    '澎湖縣':{ohca:85,bystander_cpr:29,pad:14,rosc:0},
+    '基隆市':{ohca:359,bystander_cpr:190,pad:35,rosc:11},
+    '新竹市':{ohca:276,bystander_cpr:169,pad:33,rosc:44},
+    '嘉義市':{ohca:243,bystander_cpr:142,pad:8,rosc:22},
+    '金門縣':{ohca:90,bystander_cpr:57,pad:3,rosc:7},
+    '連江縣':{ohca:4,bystander_cpr:3,pad:1,rosc:0},
+  },
+  '112年':{
+    '全國':{ohca:18654,bystander_cpr:10909,pad:1019,rosc:1849},
+    '新北市':{ohca:2420,bystander_cpr:1431,pad:77,rosc:349},
+    '臺北市':{ohca:1938,bystander_cpr:1054,pad:93,rosc:241},
+    '桃園市':{ohca:1896,bystander_cpr:1486,pad:126,rosc:255},
+    '臺中市':{ohca:1887,bystander_cpr:1405,pad:79,rosc:258},
+    '臺南市':{ohca:1485,bystander_cpr:778,pad:47,rosc:156},
+    '高雄市':{ohca:1809,bystander_cpr:959,pad:93,rosc:101},
+    '宜蘭縣':{ohca:476,bystander_cpr:232,pad:43,rosc:23},
+    '新竹縣':{ohca:529,bystander_cpr:376,pad:34,rosc:63},
+    '苗栗縣':{ohca:537,bystander_cpr:273,pad:51,rosc:20},
+    '彰化縣':{ohca:1169,bystander_cpr:504,pad:15,rosc:38},
+    '南投縣':{ohca:487,bystander_cpr:288,pad:68,rosc:26},
+    '雲林縣':{ohca:631,bystander_cpr:320,pad:19,rosc:27},
+    '嘉義縣':{ohca:561,bystander_cpr:263,pad:73,rosc:32},
+    '屏東縣':{ohca:1021,bystander_cpr:554,pad:100,rosc:35},
+    '臺東縣':{ohca:252,bystander_cpr:127,pad:16,rosc:46},
+    '花蓮縣':{ohca:504,bystander_cpr:305,pad:27,rosc:118},
+    '澎湖縣':{ohca:95,bystander_cpr:45,pad:7,rosc:5},
+    '基隆市':{ohca:321,bystander_cpr:131,pad:22,rosc:7},
+    '新竹市':{ohca:244,bystander_cpr:144,pad:17,rosc:31},
+    '嘉義市':{ohca:261,bystander_cpr:161,pad:4,rosc:13},
+    '金門縣':{ohca:88,bystander_cpr:55,pad:3,rosc:4},
+    '連江縣':{ohca:9,bystander_cpr:4,pad:1,rosc:1},
+  }
+};
+
+const rescueDataAll={
+  '114年':{
+    '全國':{ohca:18276,total_success:6735,discharge:1382},
+    '新北市':{ohca:2539,total_success:1127,discharge:282},
+    '臺北市':{ohca:1828,total_success:700,discharge:190},
+    '桃園市':{ohca:1732,total_success:690,discharge:174},
+    '臺中市':{ohca:2242,total_success:929,discharge:143},
+    '臺南市':{ohca:1512,total_success:535,discharge:134},
+    '高雄市':{ohca:1537,total_success:571,discharge:160},
+    '宜蘭縣':{ohca:455,total_success:160,discharge:13},
+    '新竹縣':{ohca:483,total_success:180,discharge:26},
+    '苗栗縣':{ohca:495,total_success:155,discharge:15},
+    '彰化縣':{ohca:1106,total_success:389,discharge:61},
+    '南投縣':{ohca:548,total_success:167,discharge:17},
+    '雲林縣':{ohca:613,total_success:143,discharge:20},
+    '嘉義縣':{ohca:551,total_success:176,discharge:22},
+    '屏東縣':{ohca:986,total_success:290,discharge:24},
+    '臺東縣':{ohca:233,total_success:87,discharge:19},
+    '花蓮縣':{ohca:419,total_success:121,discharge:17},
+    '澎湖縣':{ohca:89,total_success:27,discharge:3},
+    '基隆市':{ohca:257,total_success:62,discharge:11},
+    '新竹市':{ohca:273,total_success:104,discharge:22},
+    '嘉義市':{ohca:250,total_success:87,discharge:20},
+    '金門縣':{ohca:89,total_success:25,discharge:5},
+    '連江縣':{ohca:13,total_success:7,discharge:1},
+  },
+  '113年':{
+    '全國':{ohca:18430,total_success:6301,discharge:1249},
+    '新北市':{ohca:2509,total_success:1076,discharge:251},
+    '臺北市':{ohca:1837,total_success:634,discharge:150},
+    '桃園市':{ohca:1881,total_success:695,discharge:180},
+    '臺中市':{ohca:2198,total_success:840,discharge:131},
+    '臺南市':{ohca:1487,total_success:498,discharge:115},
+    '高雄市':{ohca:1533,total_success:549,discharge:153},
+    '宜蘭縣':{ohca:463,total_success:139,discharge:15},
+    '新竹縣':{ohca:495,total_success:133,discharge:24},
+    '苗栗縣':{ohca:539,total_success:141,discharge:6},
+    '彰化縣':{ohca:1064,total_success:352,discharge:55},
+    '南投縣':{ohca:509,total_success:149,discharge:13},
+    '雲林縣':{ohca:661,total_success:168,discharge:32},
+    '嘉義縣':{ohca:554,total_success:139,discharge:17},
+    '屏東縣':{ohca:957,total_success:224,discharge:13},
+    '臺東縣':{ohca:250,total_success:88,discharge:21},
+    '花蓮縣':{ohca:425,total_success:140,discharge:7},
+    '澎湖縣':{ohca:85,total_success:16,discharge:0},
+    '基隆市':{ohca:359,total_success:82,discharge:11},
+    '新竹市':{ohca:276,total_success:126,discharge:31},
+    '嘉義市':{ohca:233,total_success:79,discharge:21},
+    '金門縣':{ohca:80,total_success:28,discharge:2},
+    '連江縣':{ohca:4,total_success:2,discharge:0},
+  },
+  '112年':{
+    '全國':{ohca:18654,total_success:6010,discharge:1235},
+    '新北市':{ohca:2420,total_success:1117,discharge:236},
+    '臺北市':{ohca:1938,total_success:609,discharge:171},
+    '桃園市':{ohca:1896,total_success:666,discharge:154},
+    '臺中市':{ohca:1887,total_success:671,discharge:150},
+    '臺南市':{ohca:1485,total_success:489,discharge:100},
+    '高雄市':{ohca:1809,total_success:586,discharge:150},
+    '宜蘭縣':{ohca:476,total_success:136,discharge:18},
+    '新竹縣':{ohca:529,total_success:167,discharge:20},
+    '苗栗縣':{ohca:537,total_success:129,discharge:11},
+    '彰化縣':{ohca:1169,total_success:332,discharge:56},
+    '南投縣':{ohca:487,total_success:96,discharge:16},
+    '雲林縣':{ohca:631,total_success:146,discharge:21},
+    '嘉義縣':{ohca:561,total_success:119,discharge:14},
+    '屏東縣':{ohca:1021,total_success:211,discharge:23},
+    '臺東縣':{ohca:252,total_success:88,discharge:18},
+    '花蓮縣':{ohca:504,total_success:117,discharge:14},
+    '澎湖縣':{ohca:95,total_success:27,discharge:3},
+    '基隆市':{ohca:321,total_success:73,discharge:7},
+    '新竹市':{ohca:244,total_success:113,discharge:27},
+    '嘉義市':{ohca:261,total_success:79,discharge:20},
+    '金門縣':{ohca:88,total_success:21,discharge:4},
+    '連江縣':{ohca:9,total_success:2,discharge:1},
+  }
+};
+
+const populationAll={
+  '114年':{
+    '全國':23299132,'新北市':4044831,'臺北市':2439507,'桃園市':2355106,
+    '臺中市':2868465,'臺南市':1852477,'高雄市':2718545,'宜蘭縣':449336,
+    '新竹縣':597235,'苗栗縣':531172,'彰化縣':1210206,'南投縣':467881,
+    '雲林縣':650989,'嘉義縣':473181,'屏東縣':782256,'臺東縣':208320,
+    '花蓮縣':312807,'澎湖縣':106716,'基隆市':359836,'新竹市':455740,
+    '嘉義市':261592,'金門縣':139313,'連江縣':13621,
+  },
+  '113年':{
+    '全國':23400220,'新北市':4047001,'臺北市':2490869,'桃園市':2338648,
+    '臺中市':2860601,'臺南市':1858651,'高雄市':2731412,'宜蘭縣':449212,
+    '新竹縣':594641,'苗栗縣':532854,'彰化縣':1225675,'南投縣':472299,
+    '雲林縣':658427,'嘉義縣':478786,'屏東縣':789239,'臺東縣':210219,
+    '花蓮縣':315374,'澎湖縣':107901,'基隆市':361441,'新竹市':457242,
+    '嘉義市':262177,'金門縣':143601,'連江縣':13950,
+  },
+  '112年':{
+    '全國':23420442,'新北市':4041120,'臺北市':2511886,'桃園市':2317445,
+    '臺中市':2845909,'臺南市':1859946,'高雄市':2737941,'宜蘭縣':449890,
+    '新竹縣':589289,'苗栗縣':534575,'彰化縣':1239048,'南投縣':477094,
+    '雲林縣':659468,'嘉義縣':484560,'屏東縣':794997,'臺東縣':211544,
+    '花蓮縣':317489,'澎湖縣':107739,'基隆市':362255,'新竹市':456475,
+    '嘉義市':263584,'金門縣':144149,'連江縣':14039,
+  }
+};
+
+const locationDataAll={
+  '114年':{
+    '全國':{住宅:11882,工廠工作:752,運動中心:86,街道公路:2321,公共建築:202,療養院:425,教育學校:88,捷運站:91,診所護理之家:681,其他:1730,不清楚:13},
+    '新北市':{住宅:1511,工廠工作:99,運動中心:20,街道公路:376,公共建築:25,療養院:109,教育學校:9,捷運站:35,診所護理之家:52,其他:303,不清楚:0},
+    '臺北市':{住宅:1184,工廠工作:67,運動中心:19,街道公路:205,公共建築:53,療養院:44,教育學校:13,捷運站:22,診所護理之家:0,其他:219,不清楚:2},
+    '桃園市':{住宅:1125,工廠工作:98,運動中心:4,街道公路:233,公共建築:28,療養院:35,教育學校:12,捷運站:3,診所護理之家:65,其他:129,不清楚:0},
+    '臺中市':{住宅:1610,工廠工作:87,運動中心:18,街道公路:218,公共建築:0,療養院:26,教育學校:23,捷運站:10,診所護理之家:103,其他:147,不清楚:0},
+    '臺南市':{住宅:916,工廠工作:82,運動中心:3,街道公路:245,公共建築:16,療養院:30,教育學校:7,捷運站:4,診所護理之家:82,其他:125,不清楚:2},
+    '高雄市':{住宅:974,工廠工作:63,運動中心:3,街道公路:262,公共建築:15,療養院:14,教育學校:5,捷運站:4,診所護理之家:54,其他:143,不清楚:0},
+    '宜蘭縣':{住宅:303,工廠工作:13,運動中心:3,街道公路:46,公共建築:5,療養院:12,教育學校:2,捷運站:0,診所護理之家:10,其他:61,不清楚:0},
+    '新竹縣':{住宅:290,工廠工作:52,運動中心:4,街道公路:64,公共建築:11,療養院:11,教育學校:1,捷運站:3,診所護理之家:14,其他:36,不清楚:0},
+    '苗栗縣':{住宅:374,工廠工作:15,運動中心:1,街道公路:38,公共建築:5,療養院:9,教育學校:1,捷運站:1,診所護理之家:22,其他:29,不清楚:0},
+    '彰化縣':{住宅:726,工廠工作:29,運動中心:3,街道公路:148,公共建築:5,療養院:32,教育學校:1,捷運站:3,診所護理之家:83,其他:73,不清楚:3},
+    '南投縣':{住宅:358,工廠工作:18,運動中心:0,街道公路:60,公共建築:10,療養院:9,教育學校:2,捷運站:0,診所護理之家:36,其他:55,不清楚:0},
+    '雲林縣':{住宅:368,工廠工作:24,運動中心:0,街道公路:124,公共建築:3,療養院:9,教育學校:2,捷運站:0,診所護理之家:22,其他:61,不清楚:0},
+    '嘉義縣':{住宅:407,工廠工作:17,運動中心:0,街道公路:52,公共建築:4,療養院:9,教育學校:1,捷運站:0,診所護理之家:18,其他:43,不清楚:0},
+    '屏東縣':{住宅:623,工廠工作:27,運動中心:2,街道公路:97,公共建築:5,療養院:39,教育學校:5,捷運站:0,診所護理之家:61,其他:125,不清楚:2},
+    '臺東縣':{住宅:143,工廠工作:10,運動中心:0,街道公路:36,公共建築:2,療養院:1,教育學校:1,捷運站:1,診所護理之家:5,其他:26,不清楚:0},
+    '花蓮縣':{住宅:280,工廠工作:11,運動中心:0,街道公路:40,公共建築:3,療養院:14,教育學校:0,捷運站:3,診所護理之家:21,其他:43,不清楚:4},
+    '澎湖縣':{住宅:68,工廠工作:4,運動中心:0,街道公路:4,公共建築:0,療養院:2,教育學校:0,捷運站:0,診所護理之家:4,其他:7,不清楚:0},
+    '基隆市':{住宅:165,工廠工作:7,運動中心:1,街道公路:30,公共建築:1,療養院:8,教育學校:0,捷運站:0,診所護理之家:9,其他:36,不清楚:0},
+    '新竹市':{住宅:209,工廠工作:14,運動中心:1,街道公路:12,公共建築:9,療養院:1,教育學校:1,捷運站:0,診所護理之家:6,其他:20,不清楚:0},
+    '嘉義市':{住宅:180,工廠工作:3,運動中心:3,街道公路:20,公共建築:0,療養院:2,教育學校:2,捷運站:1,診所護理之家:13,其他:26,不清楚:0},
+    '金門縣':{住宅:60,工廠工作:0,運動中心:0,街道公路:4,公共建築:1,療養院:9,教育學校:0,捷運站:1,診所護理之家:1,其他:13,不清楚:0},
+    '連江縣':{住宅:6,工廠工作:0,運動中心:1,街道公路:1,公共建築:0,療養院:0,教育學校:0,捷運站:0,診所護理之家:0,其他:5,不清楚:0},
+  },
+  '113年':{
+    '全國':{住宅:11879,工廠工作:807,運動中心:84,街道公路:2439,公共建築:216,療養院:420,教育學校:101,捷運站:97,診所護理之家:707,其他:1680,不清楚:31},
+    '新北市':{住宅:1496,工廠工作:110,運動中心:20,街道公路:364,公共建築:34,療養院:114,教育學校:10,捷運站:34,診所護理之家:37,其他:290,不清楚:0},
+    '臺北市':{住宅:1214,工廠工作:54,運動中心:12,街道公路:239,公共建築:54,療養院:37,教育學校:20,捷運站:20,診所護理之家:3,其他:171,不清楚:13},
+    '桃園市':{住宅:1229,工廠工作:102,運動中心:6,街道公路:242,公共建築:24,療養院:33,教育學校:9,捷運站:5,診所護理之家:90,其他:141,不清楚:0},
+    '臺中市':{住宅:1608,工廠工作:99,運動中心:14,街道公路:185,公共建築:0,療養院:35,教育學校:19,捷運站:9,診所護理之家:88,其他:141,不清楚:0},
+    '臺南市':{住宅:894,工廠工作:74,運動中心:6,街道公路:229,公共建築:20,療養院:28,教育學校:10,捷運站:1,診所護理之家:79,其他:144,不清楚:2},
+    '高雄市':{住宅:925,工廠工作:79,運動中心:7,街道公路:253,公共建築:14,療養院:20,教育學校:6,捷運站:6,診所護理之家:79,其他:143,不清楚:1},
+    '宜蘭縣':{住宅:313,工廠工作:14,運動中心:0,街道公路:49,公共建築:15,療養院:13,教育學校:4,捷運站:1,診所護理之家:8,其他:45,不清楚:1},
+    '新竹縣':{住宅:313,工廠工作:26,運動中心:2,街道公路:81,公共建築:8,療養院:6,教育學校:4,捷運站:2,診所護理之家:24,其他:29,不清楚:0},
+    '苗栗縣':{住宅:353,工廠工作:22,運動中心:0,街道公路:67,公共建築:3,療養院:6,教育學校:0,捷運站:1,診所護理之家:30,其他:57,不清楚:0},
+    '彰化縣':{住宅:674,工廠工作:36,運動中心:1,街道公路:179,公共建築:10,療養院:32,教育學校:4,捷運站:5,診所護理之家:64,其他:58,不清楚:1},
+    '南投縣':{住宅:356,工廠工作:22,運動中心:2,街道公路:49,公共建築:4,療養院:5,教育學校:1,捷運站:0,診所護理之家:20,其他:48,不清楚:2},
+    '雲林縣':{住宅:399,工廠工作:22,運動中心:3,街道公路:119,公共建築:3,療養院:18,教育學校:3,捷運站:1,診所護理之家:29,其他:64,不清楚:0},
+    '嘉義縣':{住宅:365,工廠工作:18,運動中心:0,街道公路:96,公共建築:2,療養院:3,教育學校:1,捷運站:0,診所護理之家:14,其他:55,不清楚:0},
+    '屏東縣':{住宅:622,工廠工作:27,運動中心:1,街道公路:97,公共建築:5,療養院:40,教育學校:6,捷運站:1,診所護理之家:54,其他:102,不清楚:2},
+    '臺東縣':{住宅:128,工廠工作:8,運動中心:0,街道公路:51,公共建築:6,療養院:4,教育學校:1,捷運站:2,診所護理之家:10,其他:37,不清楚:0},
+    '花蓮縣':{住宅:273,工廠工作:47,運動中心:2,街道公路:39,公共建築:6,療養院:9,教育學校:1,捷運站:4,診所護理之家:19,其他:32,不清楚:8},
+    '澎湖縣':{住宅:53,工廠工作:4,運動中心:0,街道公路:8,公共建築:1,療養院:0,教育學校:0,捷運站:0,診所護理之家:1,其他:16,不清楚:1},
+    '基隆市':{住宅:250,工廠工作:6,運動中心:2,街道公路:29,公共建築:4,療養院:11,教育學校:0,捷運站:2,診所護理之家:21,其他:34,不清楚:0},
+    '新竹市':{住宅:185,工廠工作:12,運動中心:3,街道公路:31,公共建築:2,療養院:2,教育學校:0,捷運站:1,診所護理之家:18,其他:22,不清楚:0},
+    '嘉義市':{住宅:161,工廠工作:8,運動中心:2,街道公路:23,公共建築:1,療養院:3,教育學校:2,捷運站:2,診所護理之家:17,其他:24,不清楚:0},
+    '金門縣':{住宅:62,工廠工作:6,運動中心:0,街道公路:5,公共建築:0,療養院:1,教育學校:0,捷運站:0,診所護理之家:1,其他:15,不清楚:0},
+    '連江縣':{住宅:1,工廠工作:1,運動中心:0,街道公路:0,公共建築:0,療養院:0,教育學校:0,捷運站:0,診所護理之家:0,其他:2,不清楚:0},
+  },
+  '112年':{
+    '全國':{住宅:12077,工廠工作:773,運動中心:93,街道公路:2340,公共建築:232,療養院:504,教育學校:81,捷運站:66,診所護理之家:720,其他:1749,不清楚:21},
+    '新北市':{住宅:1434,工廠工作:117,運動中心:20,街道公路:349,公共建築:36,療養院:102,教育學校:8,捷運站:22,診所護理之家:45,其他:287,不清楚:0},
+    '臺北市':{住宅:1283,工廠工作:84,運動中心:19,街道公路:220,公共建築:49,療養院:56,教育學校:13,捷運站:14,診所護理之家:0,其他:198,不清楚:2},
+    '桃園市':{住宅:1276,工廠工作:102,運動中心:7,街道公路:200,公共建築:24,療養院:57,教育學校:6,捷運站:3,診所護理之家:97,其他:121,不清楚:3},
+    '臺中市':{住宅:1334,工廠工作:77,運動中心:8,街道公路:171,公共建築:0,療養院:40,教育學校:10,捷運站:4,診所護理之家:96,其他:141,不清楚:6},
+    '臺南市':{住宅:894,工廠工作:51,運動中心:5,街道公路:227,公共建築:26,療養院:35,教育學校:11,捷運站:3,診所護理之家:70,其他:163,不清楚:0},
+    '高雄市':{住宅:1150,工廠工作:103,運動中心:13,街道公路:246,公共建築:20,療養院:24,教育學校:13,捷運站:4,診所護理之家:76,其他:164,不清楚:0},
+    '宜蘭縣':{住宅:309,工廠工作:14,運動中心:2,街道公路:67,公共建築:6,療養院:14,教育學校:1,捷運站:0,診所護理之家:9,其他:54,不清楚:0},
+    '新竹縣':{住宅:341,工廠工作:15,運動中心:3,街道公路:84,公共建築:9,療養院:12,教育學校:0,捷運站:2,診所護理之家:28,其他:34,不清楚:1},
+    '苗栗縣':{住宅:367,工廠工作:18,運動中心:1,街道公路:60,公共建築:3,療養院:6,教育學校:2,捷運站:1,診所護理之家:30,其他:49,不清楚:0},
+    '彰化縣':{住宅:764,工廠工作:54,運動中心:3,街道公路:152,公共建築:7,療養院:28,教育學校:4,捷運站:3,診所護理之家:80,其他:73,不清楚:1},
+    '南投縣':{住宅:338,工廠工作:12,運動中心:1,街道公路:50,公共建築:5,療養院:14,教育學校:0,捷運站:0,診所護理之家:19,其他:47,不清楚:1},
+    '雲林縣':{住宅:376,工廠工作:12,運動中心:1,街道公路:132,公共建築:6,療養院:20,教育學校:1,捷運站:2,診所護理之家:20,其他:61,不清楚:0},
+    '嘉義縣':{住宅:359,工廠工作:13,運動中心:0,街道公路:96,公共建築:3,療養院:7,教育學校:2,捷運站:3,診所護理之家:18,其他:60,不清楚:0},
+    '屏東縣':{住宅:679,工廠工作:30,運動中心:1,街道公路:95,公共建築:3,療養院:49,教育學校:3,捷運站:2,診所護理之家:60,其他:99,不清楚:0},
+    '臺東縣':{住宅:120,工廠工作:16,運動中心:2,街道公路:49,公共建築:10,療養院:5,教育學校:0,捷運站:2,診所護理之家:6,其他:37,不清楚:5},
+    '花蓮縣':{住宅:331,工廠工作:13,運動中心:1,街道公路:62,公共建築:12,療養院:16,教育學校:2,捷運站:0,診所護理之家:21,其他:44,不清楚:2},
+    '澎湖縣':{住宅:63,工廠工作:2,運動中心:1,街道公路:6,公共建築:0,療養院:1,教育學校:0,捷運站:0,診所護理之家:3,其他:18,不清楚:0},
+    '基隆市':{住宅:228,工廠工作:5,運動中心:2,街道公路:28,公共建築:2,療養院:6,教育學校:1,捷運站:0,診所護理之家:21,其他:28,不清楚:0},
+    '新竹市':{住宅:174,工廠工作:9,運動中心:3,街道公路:20,公共建築:3,療養院:0,教育學校:3,捷運站:0,診所護理之家:7,其他:25,不清楚:0},
+    '嘉義市':{住宅:189,工廠工作:5,運動中心:0,街道公路:16,公共建築:5,療養院:6,教育學校:0,捷運站:0,診所護理之家:11,其他:29,不清楚:0},
+    '金門縣':{住宅:60,工廠工作:2,運動中心:0,街道公路:9,公共建築:1,療養院:5,教育學校:1,捷運站:0,診所護理之家:3,其他:7,不清楚:0},
+    '連江縣':{住宅:3,工廠工作:1,運動中心:0,街道公路:1,公共建築:2,療養院:1,教育學校:0,捷運站:1,診所護理之家:0,其他:0,不清楚:0},
+  }
+};
+
+const monthlyData={
+  '全國':{
+    ohca:[2019,1700,1622,1418,1409,1379,1488,1388,1367,1453,1431,1602],
+    success:[707,614,590,530,535,498,533,506,506,527,563,626],
+    discharge:[95,111,122,98,115,115,99,120,129,124,123,131],
+  }
+};
+
+// Utstein 存活率資料（year-keyed）：112 / 114 年無資料，保持 null
+const utsteinAll={
+  '114年':{
+    '全國':{survived:631,witnessed:2262},
+    '臺北市':{survived:101,witnessed:223},
+    '新北市':{survived:113,witnessed:233},
+    '桃園市':{survived:91,witnessed:257},
+    '臺中市':{survived:44,witnessed:124},
+    '臺南市':{survived:42,witnessed:132},
+    '高雄市':{survived:57,witnessed:205},
+    '宜蘭縣':{survived:20,witnessed:57},
+    '新竹縣':{survived:15,witnessed:132},
+    '苗栗縣':{survived:7,witnessed:24},
+    '彰化縣':{survived:18,witnessed:104},
+    '南投縣':{survived:24,witnessed:42},
+    '雲林縣':{survived:8,witnessed:37},
+    '嘉義縣':{survived:5,witnessed:89},
+    '屏東縣':{survived:32,witnessed:394},
+    '臺東縣':{survived:9,witnessed:19},
+    '花蓮縣':{survived:7,witnessed:43},
+    '澎湖縣':{survived:3,witnessed:6},
+    '基隆市':{survived:19,witnessed:94},
+    '新竹市':{survived:8,witnessed:20},
+    '嘉義市':{survived:6,witnessed:14},
+    '金門縣':{survived:1,witnessed:8},
+    '連江縣':{survived:1,witnessed:5},
+  },
+  '113年':{
+    '全國':{survived:501,witnessed:2008},
+    '臺北市':{survived:96,witnessed:198},
+    '新北市':{survived:89,witnessed:247},
+    '桃園市':{survived:53,witnessed:212},
+    '臺中市':{survived:28,witnessed:89},
+    '臺南市':{survived:40,witnessed:175},
+    '高雄市':{survived:42,witnessed:158},
+    '宜蘭縣':{survived:22,witnessed:38},
+    '新竹縣':{survived:17,witnessed:122},
+    '苗栗縣':{survived:6,witnessed:18},
+    '彰化縣':{survived:15,witnessed:91},
+    '南投縣':{survived:11,witnessed:69},
+    '雲林縣':{survived:12,witnessed:38},
+    '嘉義縣':{survived:5,witnessed:105},
+    '屏東縣':{survived:7,witnessed:134},
+    '臺東縣':{survived:7,witnessed:17},
+    '花蓮縣':{survived:11,witnessed:56},
+    '澎湖縣':{survived:0,witnessed:3},
+    '基隆市':{survived:13,witnessed:168},
+    '新竹市':{survived:14,witnessed:39},
+    '嘉義市':{survived:12,witnessed:25},
+    '金門縣':{survived:1,witnessed:6},
+    '連江縣':null,
+  },
+  '112年':null,
+};
+// 便利存取器：取得當前年度的 Utstein 資料 dict（若無資料則回傳 null）
+function getUtsteinYearData(){return utsteinAll[currentYear]||null;}
+function getUtstein(region){const y=getUtsteinYearData();return y?y[region]:null;}
+
+// ===== NATIONAL TREND DATA (104年-114年) =====
+const trendNational={
+  years:['104年','105年','106年','107年','108年','109年','110年','111年','112年','113年','114年'],
+  ohca:[20024,20530,20079,20201,20003,19313,18813,19370,18654,18455,18275],
+  success_rate:[20.7,21.3,21.3,22.9,24.0,24.7,26.3,27.4,32.2,34.1,36.9],
+  discharge_rate:[2.3,2.6,2.9,3.1,3.7,3.9,4.4,4.9,6.6,6.8,7.6],
+  per_capita:[null,null,null,null,null,null,null,null,5.3,5.3,5.9],
+};
+
+// ===== STATE =====
+let currentYear='114年';
+let currentRegion='全國';
+let currentGroup=null;
+let currentPage='main'; // 'main' | 'trend'
+let trendRegion='全國';
+let activeKPI=null;
+let activeColIdx=null;
+let charts={};
+
+// ===== HELPERS =====
+function pct(n,d){return d&&n!=null?((n/d)*100).toFixed(1):'0.0';}
+function fmt(n){return n!=null?n.toLocaleString():'0';}
+function isMetro(r){return METRO.includes(r);}
+function regionType(r){return r==='全國'?'national':isMetro(r)?'metro':'county';}
+function getCC(v,lo,hi){return v>=hi?'tag-good':v>=lo?'tag-warn':'tag-bad';}
+function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+const CD={color:'rgba(226,232,240,0.88)',grid:'rgba(30,45,69,0.6)'};
+function naStr(v){return(v===null||v===undefined)?'—':String(v);}
+function na(v){return v===null||v===undefined?'<span class="tag-na">—</span>':v;}
+
+// Year-aware data accessors
+function getOHCA(r){const d=ohcaDataAll[currentYear];return d?(d[r]||null):null;}
+function getRescue(r){const d=rescueDataAll[currentYear];return d?(d[r]||null):null;}
+function getPop(r){const d=populationAll[currentYear];return d?(d[r]||null):null;}
+function getUtsteinPct(region){
+  const d=getUtstein(region);
+  if(!d||!d.witnessed)return null;
+  return parseFloat((d.survived/d.witnessed*100).toFixed(1));
+}
+function getUtsteinTag(v){if(v===null)return'tag-na';return v>=40?'tag-good':v>=20?'tag-warn':'tag-bad';}
+
+// ===== GROUP AGGREGATE (year-aware) =====
+function computeGroupData(regs){
+  const od=ohcaDataAll[currentYear]||{};
+  const rd=rescueDataAll[currentYear]||{};
+  const popd=populationAll[currentYear]||{};
+  const o={ohca:0,bystander_cpr:0,pad:0,rosc:0};
+  let hasOhca=false,hasCpr=true,hasPad=true,hasRosc=true;
+  const r={ohca:0,total_success:0,discharge:0};
+  let hasSuccess=true,hasDischarge=false;
+  let pop=0;
+  const loc={};
+  let uSurvived=0,uWitnessed=0;
+  regs.forEach(region=>{
+    const oData=od[region];
+    if(oData){
+      if(oData.ohca!=null){o.ohca+=oData.ohca;hasOhca=true;}
+      if(oData.bystander_cpr!=null)o.bystander_cpr+=oData.bystander_cpr; else hasCpr=false;
+      if(oData.pad!=null)o.pad+=oData.pad; else hasPad=false;
+      if(oData.rosc!=null)o.rosc+=oData.rosc; else hasRosc=false;
+    } else {hasCpr=false;hasPad=false;hasRosc=false;}
+    const rData=rd[region];
+    if(rData){
+      if(rData.ohca!=null){r.ohca+=rData.ohca;}else hasSuccess=false;
+      if(rData.total_success!=null)r.total_success+=rData.total_success; else hasSuccess=false;
+      if(rData.discharge!=null){r.discharge+=rData.discharge;hasDischarge=true;}
+    }
+    if(popd[region])pop+=popd[region];
+    const yld=(locationDataAll[currentYear]||{})[region];
+    if(yld)Object.keys(yld).forEach(k=>{loc[k]=(loc[k]||0)+yld[k];});
+    const ud=getUtstein(region);
+    if(ud&&ud.witnessed){uSurvived+=ud.survived;uWitnessed+=ud.witnessed;}
+  });
+  return{
+    ohca:{ohca:hasOhca?o.ohca:null,bystander_cpr:hasCpr?o.bystander_cpr:null,pad:hasPad?o.pad:null,rosc:hasRosc?o.rosc:null},
+    rescue:{ohca:hasSuccess?r.ohca:null,total_success:hasSuccess?r.total_success:null,discharge:hasDischarge?r.discharge:null},
+    pop,loc,utstein:uWitnessed>0?{survived:uSurvived,witnessed:uWitnessed}:null
+  };
+}
+
+// ===== RENDER GROUP KPI =====
+function renderGroupKPI(regs,label,type){
+  const data=computeGroupData(regs);
+  const o=data.ohca,r=data.rescue,pop=data.pop;
+  const isNational=false;
+  document.getElementById('kpiLabel').innerHTML=`核心指標 — ${label}（${currentYear}）`;
+  const clr=type==='metro'?'orange':'violet';
+  const groupBadge=type==='metro'?'<span class="kpi-badge metro">直轄市合計</span>':'<span class="kpi-badge county">縣市合計</span>';
+  const cprR=o.bystander_cpr!=null?parseFloat(pct(o.bystander_cpr,o.ohca)):null;
+  const padR=o.pad!=null?parseFloat(pct(o.pad,o.ohca)):null;
+  const roscR=o.rosc!=null?parseFloat(pct(o.rosc,o.ohca)):null;
+  const sR=r.total_success!=null?parseFloat(pct(r.total_success,r.ohca)):null;
+  const dR=r.discharge!=null&&r.ohca?parseFloat(pct(r.discharge,r.ohca)):null;
+  const perCap=pop&&r.discharge!=null?((r.discharge/pop)*100000).toFixed(1):null;
+  const ud=data.utstein;
+  const uYearAvail=getUtsteinYearData()!==null;
+  const uValue=ud?parseFloat((ud.survived/ud.witnessed*100).toFixed(1))+'%':'—';
+  const uSub=ud?`${ud.survived}/${ud.witnessed}（${currentYear}）`:(uYearAvail?`${currentYear}部分資料不可用`:`${currentYear}無資料`);
+  function kv(v,sfx){return v===null?'—':v+(sfx||'');}
+  const kpis=[
+    {label:'OHCA 人次',value:kv(o.ohca!=null?fmt(o.ohca):null),sub:'到院前心肺功能停止',cls:'blue',metric:'ohca',col:1,badge:groupBadge},
+    {label:'旁觀者 CPR 率',value:kv(cprR,'%'),sub:cprR!==null?`${fmt(o.bystander_cpr)} / ${fmt(o.ohca)}`:'',cls:'yellow',metric:'cpr',col:3,badge:groupBadge},
+    {label:'PAD 使用率',value:kv(padR,'%'),sub:padR!==null?`${fmt(o.pad)} / ${fmt(o.ohca)}`:'',cls:'purple',metric:'pad',col:5,badge:groupBadge},
+    {label:'到院前 ROSC 率',value:kv(roscR,'%'),sub:roscR!==null?`心肺功能恢復 ${fmt(o.rosc)} 人次`:'',cls:'green',metric:'rosc',col:null,badge:groupBadge},
+    {label:'急救成功率',value:kv(sR,'%'),sub:sR!==null?`成功 ${fmt(r.total_success)} 人次`:'',cls:'red',metric:'success',col:7,badge:groupBadge},
+    {label:'康復出院率',value:kv(dR,'%'),sub:dR!==null?`康復出院 ${fmt(r.discharge)} 人次`:'',cls:'green',metric:'discharge',col:9,badge:groupBadge},
+    {label:'每10萬人口出院數',value:kv(perCap),sub:perCap!==null?(pop?(pop/10000).toFixed(0)+'萬人':''):'',cls:clr,metric:'perCapita',col:10,badge:groupBadge},
+    {label:'Utstein 存活率',value:uValue,sub:uSub,cls:'amber',metric:'utstein',col:11,badge:`<span class="kpi-badge ref">${uYearAvail?currentYear+'參考':currentYear+'無資料'}</span>`},
+  ];
+  document.getElementById('kpiGrid').innerHTML=kpis.map(c=>{
+    const isActive=activeKPI===c.metric;
+    return `<div class="kpi-card ${c.cls}${isActive?' kpi-active':''}" onclick="activateKPI('${c.metric}',${c.col===null?'null':c.col},this)" title="點選以高亮對應表格欄位">
+      ${c.badge}
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value">${c.value}</div>
+      <div class="kpi-sub">${c.sub}</div>
+      <div class="kpi-hint">▶ 點選高亮表格</div>
+    </div>`;
+  }).join('');
+  if(activeColIdx!==null)applyColHighlight(activeColIdx,activeKPI==='utstein');
+}
+
+// ===== YEAR SWITCH =====
+function switchYear(year){
+  currentPage='main';
+  currentYear=year;
+  document.querySelectorAll('.year-tab').forEach(t=>t.classList.remove('active'));
+  const cls={'112年':'y112','113年':'y113','114年':'y114'}[year];
+  document.querySelector('.year-tab.'+cls).classList.add('active');
+  document.getElementById('mainContent').style.display='';
+  document.getElementById('trendContent').style.display='none';
+  // 主頁恢復「全部直轄市」「全部縣市」按鈕
+  document.getElementById('btnGroupMetro').style.display='';
+  document.getElementById('btnGroupCounty').style.display='';
+
+  const subtitles={
+    '114年':'中華民國114年（2025）1月至12月 ‧ 到院前心肺功能停止傷病患統計',
+    '113年':'中華民國113年（2024）1月至12月 ‧ 到院前心肺功能停止傷病患統計',
+    '112年':'中華民國112年（2023）1月至12月 ‧ 到院前心肺功能停止傷病患統計（各縣市急救成功率未提供）',
+  };
+  document.getElementById('yearSubtitle').textContent=subtitles[year]||'';
+
+  const bannerMsgs={
+    '113年':'📋 <strong>113年（2024）資料：</strong>旁觀者CPR率、PAD使用率、ROSC率及事故地點資料現已更新（來源：消防署月報表10983-01-03）。各縣市急救成功率（ROSC）、康復出院率及OHCA人次完整。Utstein 存活率為 113 年原始資料（全 22 縣市，連江縣目擊可電擊心律為 0）。',
+    '112年':'📋 <strong>112年（2023）資料：</strong>旁觀者CPR率、PAD使用率、ROSC率及事故地點資料現已更新。各縣市康復出院率使用OHCA人次為分母；急救成功率（到院前ROSC÷OHCA）以縣市資料呈現。<strong>Utstein 存活率：112 年無資料（留白）。</strong>',
+    '114年':'📋 <strong>114年（2025）資料：</strong>旁觀者CPR率、PAD使用率、ROSC率、事故地點及月報資料完整。<strong>Utstein 存活率：114 年全 22 縣市資料已收錄（全國 631/2262 = 27.9%）。</strong>',
+  };
+  const banner=document.getElementById('yearBanner');
+  if(bannerMsgs[year]){
+    banner.innerHTML=bannerMsgs[year];
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+
+  // All years now have CPR/PAD/ROSC data
+  document.getElementById('cprSection').style.display='';
+
+  activeKPI=null;activeColIdx=null;
+  if(currentGroup==='metro')renderGroupKPI(METRO,'全部直轄市','metro');
+  else if(currentGroup==='county')renderGroupKPI(COUNTIES,'全部縣市','county');
+  else renderKPI(currentRegion);
+  makeCprChart('chartCprMetro','cprMetro',METRO,currentRegion||'全國',true);
+  makeCprChart('chartCprCounty','cprCounty',COUNTIES,currentRegion||'全國',false);
+  makeSuccessChart('chartSuccessMetro','successMetro',METRO,currentGroup==='metro'?'ALL':(currentRegion||'全國'),true);
+  makeSuccessChart('chartSuccessCounty','successCounty',COUNTIES,currentGroup==='county'?'ALL':(currentRegion||'全國'),false);
+  renderLocationChart(currentRegion||'全國');
+  renderPerCapitaChart();
+  if(currentYear==='114年')renderMonthlyChart(currentRegion||'全國'); else document.getElementById('monthlyCard').style.display='none';
+  renderUtsteinCharts(currentRegion||'全國');
+  renderTable();
+}
+
+// ===== KPI HIGHLIGHT =====
+function activateKPI(metric,colIdx,el){
+  const wasActive=(activeKPI===metric);
+  document.querySelectorAll('.kpi-card').forEach(c=>c.classList.remove('kpi-active'));
+  applyColHighlight(null,false);
+  if(wasActive){activeKPI=null;activeColIdx=null;return;}
+  activeKPI=metric;activeColIdx=colIdx;
+  el.classList.add('kpi-active');
+  applyColHighlight(colIdx,metric==='utstein');
+}
+function applyColHighlight(colIdx,isAmber){
+  document.querySelectorAll('[data-col]').forEach(cell=>{
+    cell.classList.remove('col-hl','col-hl-amber');
+    if(colIdx!==null&&parseInt(cell.dataset.col)===colIdx)
+      cell.classList.add(isAmber?'col-hl-amber':'col-hl');
+  });
+}
+
+// ===== RENDER BUTTONS =====
+function renderButtons(){
+  document.getElementById('metroButtons').innerHTML=METRO.map(r=>
+    `<button class="btn-region ${currentRegion===r?'active-metro':''}" onclick="selectRegion('${r}')">${r}</button>`
+  ).join('');
+  document.getElementById('countyButtons').innerHTML=COUNTIES.map(r=>
+    `<button class="btn-region ${currentRegion===r?'active-county':''}" onclick="selectRegion('${r}')">${r}</button>`
+  ).join('');
+  document.querySelectorAll('.group-btn').forEach(b=>b.classList.remove('active'));
+  if(currentRegion==='全國'&&!currentGroup)document.querySelector('.group-btn.national').classList.add('active');
+  if(currentGroup==='metro')document.querySelector('.group-btn.metro').classList.add('active');
+  if(currentGroup==='county')document.querySelector('.group-btn.county').classList.add('active');
+}
+
+// ===== RENDER KPI =====
+function renderKPI(region){
+  const o=getOHCA(region)||{};
+  const r=getRescue(region)||{};
+  const pop=getPop(region);
+  const type=regionType(region);
+  const isNational=(region==='全國');
+  document.getElementById('kpiLabel').innerHTML=
+    `核心指標 — ${region}（${currentYear}）`+
+    (isNational?` <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;letter-spacing:0;text-transform:none;">含港務消防大隊</span>`:'');
+  const badge=type==='metro'?'<span class="kpi-badge metro">直轄市</span>':type==='county'?'<span class="kpi-badge county">縣市</span>':'';
+  function kv(v,sfx){return v===null||v===undefined?'—':v+(sfx||'');}
+  const cprR=o.bystander_cpr!=null?parseFloat(pct(o.bystander_cpr,o.ohca)):null;
+  const padR=o.pad!=null?parseFloat(pct(o.pad,o.ohca)):null;
+  const roscR=o.rosc!=null?parseFloat(pct(o.rosc,o.ohca)):null;
+  const sR=r.total_success!=null&&r.ohca?parseFloat(pct(r.total_success,r.ohca)):null;
+  const dR=r.discharge!=null&&r.ohca?parseFloat(pct(r.discharge,r.ohca)):null;
+  const perCap=pop&&r.discharge!=null?((r.discharge/pop)*100000).toFixed(1):null;
+  const perCapCls=type==='metro'?'orange':type==='county'?'violet':'blue';
+  const uPct=getUtsteinPct(region);
+  const uYearAvail=getUtsteinYearData()!==null;
+  const uBadge=`<span class="kpi-badge ref">${uYearAvail?currentYear+'參考':currentYear+'無資料'}</span>`;
+  const uValue=uPct!==null?uPct+'%':'—';
+  const uRec=getUtstein(region);
+  const uSub=uRec?`${uRec.survived}/${uRec.witnessed}（${currentYear}）`:(uYearAvail?`${currentYear}資料未提供`:`${currentYear}無資料`);
+  const kpis=[
+    {label:'OHCA 人次',value:kv(o.ohca!=null?fmt(o.ohca):null),sub:isNational?'到院前心肺功能停止（含港消）':'到院前心肺功能停止',cls:'blue',metric:'ohca',col:1},
+    {label:'旁觀者 CPR 率',value:kv(cprR,'%'),sub:cprR!==null?`${fmt(o.bystander_cpr)} / ${fmt(o.ohca)}`:'本年度資料未收錄',cls:'yellow',metric:'cpr',col:3},
+    {label:'PAD 使用率',value:kv(padR,'%'),sub:padR!==null?`${fmt(o.pad)} / ${fmt(o.ohca)}`:'本年度資料未收錄',cls:'purple',metric:'pad',col:5},
+    {label:'到院前 ROSC 率',value:kv(roscR,'%'),sub:roscR!==null?`心肺功能恢復 ${fmt(o.rosc)} 人次`:'本年度資料未收錄',cls:'green',metric:'rosc',col:null},
+    {label:'急救成功率',value:kv(sR,'%'),sub:sR!==null?`成功 ${fmt(r.total_success)} 人次`:'本年度資料未收錄',cls:'red',metric:'success',col:7},
+    {label:'康復出院率',value:kv(dR,'%'),sub:dR!==null?`康復出院 ${fmt(r.discharge)} 人次`:'本年度資料未收錄',cls:'green',metric:'discharge',col:9},
+    {label:'每10萬人口出院數',value:kv(perCap),sub:perCap!==null?(pop?(pop/10000).toFixed(0)+'萬人':''):'本年度資料未收錄',cls:perCapCls,metric:'perCapita',col:10},
+    {label:'Utstein 存活率',value:uValue,sub:uSub,cls:'amber',metric:'utstein',col:11,customBadge:uBadge},
+  ];
+  document.getElementById('kpiGrid').innerHTML=kpis.map(c=>{
+    const isActive=activeKPI===c.metric;
+    const badgeHtml=c.customBadge||badge;
+    return `<div class="kpi-card ${c.cls}${isActive?' kpi-active':''}" onclick="activateKPI('${c.metric}',${c.col===null?'null':c.col},this)" title="點選以高亮對應表格欄位">
+      ${badgeHtml}
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value">${c.value}</div>
+      <div class="kpi-sub">${c.sub}</div>
+      <div class="kpi-hint">▶ 點選高亮表格</div>
+    </div>`;
+  }).join('');
+  if(activeColIdx!==null)applyColHighlight(activeColIdx,activeKPI==='utstein');
+}
+
+// ===== CHART HELPERS =====
+function makeCprChart(canvasId,chartKey,regs,hl,isM){
+  dc(chartKey);
+  const od=ohcaDataAll[currentYear]||{};
+  const cprR=regs.map(r=>{const d=od[r];return d&&d.bystander_cpr!=null?parseFloat(pct(d.bystander_cpr,d.ohca)):0;});
+  const padR=regs.map(r=>{const d=od[r];return d&&d.pad!=null?parseFloat(pct(d.pad,d.ohca)):0;});
+  const hiC=isM?'rgba(249,115,22,0.88)':'rgba(129,140,248,0.88)';
+  const loC=isM?'rgba(249,115,22,0.18)':'rgba(129,140,248,0.18)';
+  const hiBdr=isM?'#f97316':'#818cf8';
+  const isHL=r=>hl==='ALL'||r===hl;
+  charts[chartKey]=new Chart(document.getElementById(canvasId),{
+    type:'bar',
+    data:{labels:regs,datasets:[
+      {label:'旁觀者CPR率(%)',data:cprR,backgroundColor:regs.map(r=>isHL(r)?hiC:loC),borderColor:regs.map(r=>isHL(r)?hiBdr:'transparent'),borderWidth:1.5,borderRadius:3},
+      {label:'PAD使用率(%)',data:padR,backgroundColor:regs.map(r=>`rgba(168,85,247,${isHL(r)?'0.85':'0.18'})`),borderColor:regs.map(r=>isHL(r)?'#a855f7':'transparent'),borderWidth:1.5,borderRadius:3}
+    ]},
+    options:{responsive:true,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{labels:{color:CD.color,font:{size:10},boxWidth:10}}},
+      scales:{x:{ticks:{color:CD.color,font:{size:9},maxRotation:40},grid:{color:CD.grid}},
+        y:{ticks:{color:CD.color,font:{size:10}},grid:{color:CD.grid},title:{display:true,text:'%',color:CD.color,font:{size:10}}}}}
+  });
+}
+
+function makeSuccessChart(canvasId,chartKey,regs,hl,isM){
+  dc(chartKey);
+  const rd=rescueDataAll[currentYear]||{};
+  const sR=regs.map(r=>{const d=rd[r];return d&&d.total_success!=null&&d.ohca?parseFloat(pct(d.total_success,d.ohca)):0;});
+  const dR=regs.map(r=>{const d=rd[r];return d&&d.discharge!=null&&d.ohca?parseFloat(pct(d.discharge,d.ohca)):0;});
+  const hiC=isM?'rgba(249,115,22,0.88)':'rgba(129,140,248,0.88)';
+  const loC=isM?'rgba(249,115,22,0.18)':'rgba(129,140,248,0.18)';
+  const hiBdr=isM?'#f97316':'#818cf8';
+  const isHL=r=>hl==='ALL'||r===hl;
+  charts[chartKey]=new Chart(document.getElementById(canvasId),{
+    type:'bar',
+    data:{labels:regs,datasets:[
+      {label:'急救成功率(%)',data:sR,backgroundColor:regs.map(r=>isHL(r)?hiC:loC),borderColor:regs.map(r=>isHL(r)?hiBdr:'transparent'),borderWidth:1.5,borderRadius:3},
+      {label:'康復出院率(%)',data:dR,backgroundColor:regs.map(r=>`rgba(6,214,160,${isHL(r)?'0.85':'0.18'})`),borderColor:regs.map(r=>isHL(r)?'#06d6a0':'transparent'),borderWidth:1.5,borderRadius:3}
+    ]},
+    options:{responsive:true,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{labels:{color:CD.color,font:{size:10},boxWidth:10}}},
+      scales:{x:{ticks:{color:CD.color,font:{size:9},maxRotation:40},grid:{color:CD.grid}},
+        y:{ticks:{color:CD.color,font:{size:10}},grid:{color:CD.grid},title:{display:true,text:'%',color:CD.color,font:{size:10}}}}}
+  });
+}
+
+function renderLocationChart(region){
+  dc('location');
+  const canvas=document.getElementById('chartLocation');
+  const naDiv=document.getElementById('locationNA');
+  const yearLoc=locationDataAll[currentYear]||{};
+  const loc=yearLoc[region]||yearLoc['全國'];
+  if(!loc){
+    canvas.style.display='none';naDiv.style.display='';
+    document.getElementById('locationSubtitle').textContent='事故地點分布（本年度資料未收錄）';
+    return;
+  }
+  canvas.style.display='';naDiv.style.display='none';
+  document.getElementById('locationSubtitle').textContent=`${region} OHCA 事故地點分布（${currentYear}）`;
+  charts['location']=new Chart(document.getElementById('chartLocation'),{
+    type:'doughnut',
+    data:{labels:Object.keys(loc),datasets:[{data:Object.values(loc),backgroundColor:['#00d4ff','#ff6b6b','#ffd166','#06d6a0','#a855f7','#fb923c','#34d399','#60a5fa','#f472b6','#a3e635','#94a3b8'],borderColor:'#111827',borderWidth:2,hoverOffset:8}]},
+    options:{responsive:true,cutout:'60%',plugins:{
+      legend:{position:'right',labels:{color:CD.color,font:{size:9},boxWidth:9,padding:7}},
+      tooltip:{callbacks:{label:(ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return ` ${ctx.label}: ${ctx.parsed.toLocaleString()} (${t?((ctx.parsed/t)*100).toFixed(1):0}%)`;}}}}}
+  });
+}
+
+function renderPerCapitaChart(){
+  dc('perCapita');
+  const rd=rescueDataAll[currentYear]||{};
+  const popd=populationAll[currentYear]||{};
+  const all=[...METRO,...COUNTIES].filter(r=>popd[r]);
+  const items=all.map(r=>({r,v:parseFloat(((rd[r]?.discharge||0)/popd[r]*100000).toFixed(1)),m:isMetro(r)}))
+    .filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
+  charts['perCapita']=new Chart(document.getElementById('chartPerCapita'),{
+    type:'bar',
+    data:{labels:items.map(x=>x.r),datasets:[{
+      label:'每10萬人口康復出院數',data:items.map(x=>x.v),
+      backgroundColor:items.map(x=>x.m?'rgba(249,115,22,0.72)':'rgba(129,140,248,0.62)'),
+      borderColor:items.map(x=>x.m?'#f97316':'#818cf8'),borderWidth:1,borderRadius:3,borderSkipped:false,
+    }]},
+    options:{indexAxis:'y',responsive:true,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:(ctx)=>{const it=items[ctx.dataIndex];return ` ${it.v}  (${it.m?'直轄市':'縣市'})`;}}},},
+      scales:{x:{ticks:{color:CD.color,font:{size:10}},grid:{color:CD.grid}},
+        y:{ticks:{color:(ctx)=>items[ctx.index].m?'#f97316':'#818cf8',font:{size:9}},grid:{color:CD.grid}}}}
+  });
+  const sub=`<span style="color:var(--metro)">🟠 直轄市</span> ／ <span style="color:var(--county)">🟣 縣市</span>（${currentYear}人口為分母）`;
+  document.getElementById('perCapitaSubtitle').innerHTML=sub;
+}
+
+function renderMonthlyChart(region){
+  const card=document.getElementById('monthlyCard');
+  if(!monthlyData[region]){card.style.display='none';return;}
+  card.style.display='block';
+  document.getElementById('monthlyTitle').textContent=`${region} — 月別趨勢`;
+  dc('monthly');
+  const months=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const d=monthlyData[region];
+  charts['monthly']=new Chart(document.getElementById('chartMonthly'),{
+    type:'line',
+    data:{labels:months,datasets:[
+      {label:'OHCA人次',data:d.ohca,borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.07)',fill:true,tension:0.3,pointRadius:4},
+      {label:'急救成功',data:d.success,borderColor:'#ff6b6b',backgroundColor:'rgba(255,107,107,0.07)',fill:true,tension:0.3,pointRadius:4},
+      {label:'康復出院',data:d.discharge,borderColor:'#06d6a0',backgroundColor:'rgba(6,214,160,0.07)',fill:true,tension:0.3,pointRadius:4},
+    ]},
+    options:{responsive:true,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{labels:{color:CD.color,font:{size:11},boxWidth:12}}},
+      scales:{x:{ticks:{color:CD.color},grid:{color:CD.grid}},y:{ticks:{color:CD.color},grid:{color:CD.grid}}}}
+  });
+}
+
+// ===== UTSTEIN CHARTS =====
+function renderUtsteinCharts(hlMetro,hlCounty){
+  if(hlCounty===undefined)hlCounty=hlMetro;
+  dc('utsteinMetro');dc('utsteinCounty');
+  // 年度感知 UI 標籤
+  const hasData=getUtsteinYearData()!==null;
+  const sh=document.getElementById('utsteinSectionHeader');
+  const mt=document.getElementById('utsteinMetroTitle');
+  const ct=document.getElementById('utsteinCountyTitle');
+  const cy=document.getElementById('utsteinColYear');
+  const lt=document.getElementById('utsteinLegendText');
+  const ln=document.getElementById('utsteinLegendNote');
+  const ch=document.getElementById('utsteinCharts');
+  const nd=document.getElementById('utsteinNoData');
+  if(sh)sh.textContent=hasData?`Utstein 存活率 — 目擊型且旁觀者CPR存活率（${currentYear} 資料）`:`Utstein 存活率 — ${currentYear}（無資料）`;
+  if(mt)mt.textContent=`🏙 直轄市 — Utstein 存活率（${currentYear}）`;
+  if(ct)ct.textContent=`🗾 縣市 — Utstein 存活率（${currentYear}）`;
+  if(cy)cy.textContent=`(${currentYear})`;
+  if(lt)lt.textContent=`🟡 Utstein 存活率（${currentYear}）`;
+  if(ln)ln.textContent=hasData?'連江縣：目擊可電擊心律 0 人次，無法計算存活率。':`${currentYear}無 Utstein 存活率資料。`;
+  if(ch&&nd){if(hasData){ch.style.display='';nd.style.display='none';}else{ch.style.display='none';nd.style.display='';nd.textContent=`${currentYear}無 Utstein 存活率資料`;return;}}
+  function makeUChart(canvasId,chartKey,regs,hl){
+    const data=regs.map(r=>getUtsteinPct(r));
+    const hiC='rgba(245,158,11,0.88)',loC='rgba(245,158,11,0.22)';
+    charts[chartKey]=new Chart(document.getElementById(canvasId),{
+      type:'bar',
+      data:{labels:regs,datasets:[{label:'Utstein 存活率(%)',data,
+        backgroundColor:regs.map((r,i)=>data[i]===null?'rgba(100,116,139,0.2)':(hl==='ALL'||r===hl)?hiC:loC),
+        borderColor:regs.map((r,i)=>data[i]===null?'transparent':(hl==='ALL'||r===hl)?'#f59e0b':'rgba(245,158,11,0.5)'),
+        borderWidth:1.5,borderRadius:3}]},
+      options:{responsive:true,plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:(ctx)=>{const r=regs[ctx.dataIndex];const d=getUtstein(r);
+          if(!d||!d.witnessed)return '  無資料';return ` ${ctx.parsed.y}%（${d.survived}/${d.witnessed}）`;
+        }}}},
+        scales:{x:{ticks:{color:CD.color,font:{size:9},maxRotation:40},grid:{color:CD.grid}},
+          y:{ticks:{color:CD.color,font:{size:10}},grid:{color:CD.grid},title:{display:true,text:'%',color:CD.color,font:{size:10}},min:0,max:70}}}
+    });
+  }
+  makeUChart('chartUtsteinMetro','utsteinMetro',METRO,hlMetro);
+  makeUChart('chartUtsteinCounty','utsteinCounty',COUNTIES,hlCounty);
+}
+
+// ===== RENDER TABLE =====
+function renderTable(){
+  const rd=rescueDataAll[currentYear]||{};
+  const od=ohcaDataAll[currentYear]||{};
+  const popd=populationAll[currentYear]||{};
+  const allR=[...METRO,...COUNTIES];
+  const maxPc=Math.max(...allR.filter(r=>popd[r]).map(r=>(rd[r]?.discharge||0)/popd[r]*100000));
+  function makeRow(r){
+    const o=od[r]||{},re=rd[r]||{},pop=popd[r];
+    const cprR=o.bystander_cpr!=null?parseFloat(pct(o.bystander_cpr,o.ohca)):null;
+    const padR=o.pad!=null?parseFloat(pct(o.pad,o.ohca)):null;
+    const sR=re.total_success!=null&&re.ohca?parseFloat(pct(re.total_success,re.ohca)):null;
+    const dR=re.discharge!=null&&re.ohca?parseFloat(pct(re.discharge,re.ohca)):null;
+    const pc=pop&&re.discharge!=null?((re.discharge/pop)*100000).toFixed(1):null;
+    const hl=r===currentRegion?(isMetro(r)?'rh-metro':'rh-county'):
+             (currentGroup==='metro'&&isMetro(r))?'rh-metro':
+             (currentGroup==='county'&&!isMetro(r))?'rh-county':'';
+    const pcV=pc?parseFloat(pc):0;
+    const bw=maxPc?Math.round((pcV/maxPc)*52):0;
+    const bc=maxPc&&pcV/maxPc>=0.6?'#06d6a0':pcV/maxPc>=0.35?'#ffd166':'#ff6b6b';
+    const nameC=isMetro(r)?'color:var(--metro)':'color:var(--county)';
+    const tna='<span class="tag-na">—</span>';
+    const uPct=getUtsteinPct(r);
+    const uCell=uPct!==null?`<span class="${getUtsteinTag(uPct)}">${uPct}%</span>`:tna;
+    function tcls(v,lo,hi){return v!==null?`class="${getCC(v,lo,hi)}"`:'';}
+    return `<tr class="${hl}">
+      <td data-col="0" style="${nameC}">${r}</td>
+      <td data-col="1">${o.ohca!=null?fmt(o.ohca):tna}</td>
+      <td data-col="2">${o.bystander_cpr!=null?fmt(o.bystander_cpr):tna}</td>
+      <td data-col="3" ${tcls(cprR,40,65)}>${cprR!==null?cprR+'%':tna}</td>
+      <td data-col="4">${o.pad!=null?fmt(o.pad):tna}</td>
+      <td data-col="5" ${tcls(padR,3,8)}>${padR!==null?padR+'%':tna}</td>
+      <td data-col="6">${re.total_success!=null?fmt(re.total_success):tna}</td>
+      <td data-col="7" ${tcls(sR,20,35)}>${sR!==null?sR+'%':tna}</td>
+      <td data-col="8">${re.discharge!=null?fmt(re.discharge):tna}</td>
+      <td data-col="9" ${tcls(dR,3,8)}>${dR!==null?dR+'%':tna}</td>
+      <td data-col="10">${pc!==null?`<div class="bar-wrap">${pcV}<div class="bar-track"><div class="bar-fill" style="width:${bw}px;background:${bc}"></div></div></div>`:tna}</td>
+      <td data-col="11" style="border-left:1px solid rgba(245,158,11,0.2);">${uCell}</td>
+    </tr>`;
+  }
+  document.getElementById('tableBody').innerHTML=
+    `<tr class="tgh"><td colspan="12" style="color:var(--metro)">🏙 直轄市 Metropolitan Cities</td></tr>`+METRO.map(makeRow).join('')+
+    `<tr class="tgh"><td colspan="12" style="color:var(--county)">🗾 縣市 Counties &amp; Cities</td></tr>`+COUNTIES.map(makeRow).join('');
+  if(activeColIdx!==null)applyColHighlight(activeColIdx,activeKPI==='utstein');
+}
+
+// ===== SELECT GROUP/REGION =====
+function selectGroup(type){
+  if(currentPage==='trend'){trendRegion='全國';renderTrendCharts('全國');renderButtons();return;}
+  currentGroup=type;currentRegion=null;
+  renderButtons();
+  const regs=type==='metro'?METRO:COUNTIES;
+  const label=type==='metro'?'全部直轄市':'全部縣市';
+  renderGroupKPI(regs,label,type);
+  const hl=type==='metro'?'ALL':null;
+  const hl2=type==='county'?'ALL':null;
+  if(currentYear==='114年'){
+    makeCprChart('chartCprMetro','cprMetro',METRO,hl,true);
+    makeCprChart('chartCprCounty','cprCounty',COUNTIES,hl2,false);
+  }
+  makeSuccessChart('chartSuccessMetro','successMetro',METRO,hl,true);
+  makeSuccessChart('chartSuccessCounty','successCounty',COUNTIES,hl2,false);
+  {
+    const yloc=locationDataAll[currentYear]||{};
+    const loc={};
+    regs.forEach(r=>{const ld=yloc[r];if(ld)Object.keys(ld).forEach(k=>{loc[k]=(loc[k]||0)+ld[k];});});
+    dc('location');
+    document.getElementById('locationSubtitle').textContent=`${label} OHCA 事故地點分布（${currentYear}）`;
+    charts['location']=new Chart(document.getElementById('chartLocation'),{
+      type:'doughnut',
+      data:{labels:Object.keys(loc),datasets:[{data:Object.values(loc),backgroundColor:['#00d4ff','#ff6b6b','#ffd166','#06d6a0','#a855f7','#fb923c','#34d399','#60a5fa','#f472b6','#a3e635','#94a3b8'],borderColor:'#111827',borderWidth:2,hoverOffset:8}]},
+      options:{responsive:true,cutout:'60%',plugins:{legend:{position:'right',labels:{color:CD.color,font:{size:9},boxWidth:9,padding:7}},
+        tooltip:{callbacks:{label:(ctx)=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return ` ${ctx.label}: ${ctx.parsed.toLocaleString()} (${t?((ctx.parsed/t)*100).toFixed(1):0}%)`;}}}}}
+    });
+    document.getElementById('monthlyCard').style.display='none';
+  }
+  renderPerCapitaChart();
+  renderUtsteinCharts(type==='metro'?'ALL':null,type==='county'?'ALL':null);
+  renderTable();
+}
+
+function selectRegion(region){
+  currentGroup=null;currentRegion=region;
+  if(currentPage==='trend'){
+    trendRegion=region;
+    renderButtons();               // 更新按鈕 active 狀態（其他按鈕暗掉）
+    renderTrendCharts(region);
+    return;
+  }
+  renderButtons();
+  renderKPI(region);
+  makeCprChart('chartCprMetro','cprMetro',METRO,region,true);
+  makeCprChart('chartCprCounty','cprCounty',COUNTIES,region,false);
+  makeSuccessChart('chartSuccessMetro','successMetro',METRO,region,true);
+  makeSuccessChart('chartSuccessCounty','successCounty',COUNTIES,region,false);
+  renderLocationChart(region);
+  if(currentYear==='114年')renderMonthlyChart(region); else document.getElementById('monthlyCard').style.display='none';
+  renderPerCapitaChart();
+  renderUtsteinCharts(region);
+  renderTable();
+}
+
+// ===== TREND PAGE =====
+function showTrend(){
+  currentPage='trend';
+  document.querySelectorAll('.year-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.year-tab.trend').classList.add('active');
+  document.getElementById('mainContent').style.display='none';
+  document.getElementById('trendContent').style.display='';
+  document.getElementById('yearSubtitle').textContent='各縣市年度指標趨勢（104年–114年）';
+  document.getElementById('yearBanner').classList.remove('show');
+  // 趨勢頁隱藏「全部直轄市」「全部縣市」群組按鈕（趨勢頁不支援群組聚合）
+  document.getElementById('btnGroupMetro').style.display='none';
+  document.getElementById('btnGroupCounty').style.display='none';
+  // 若之前是群組檢視（currentRegion 為 null），進入趨勢頁時重置為全國
+  if(!currentRegion)currentRegion='全國';
+  currentGroup=null;
+  trendRegion=currentRegion;
+  renderButtons();
+  renderTrendCharts(currentRegion);
+}
+
+function renderTrendCharts(region){
+  const isNat=(region==='全國');
+  document.getElementById('trendTitle').textContent=`年度趨勢 — ${region}`;
+  // 只有全國總計時才顯示「含港消」
+  const sub=document.getElementById('trendOhcaSubtitle');
+  if(sub)sub.textContent=isNat?'到院前心肺功能停止（含港消）':'到院前心肺功能停止';
+
+  if(isNat){
+    // Full national trends 104-114年
+    renderTrendOhca(trendNational.years,trendNational.ohca,true);
+    renderTrendRates(trendNational.years,trendNational.success_rate,trendNational.discharge_rate,true);
+    renderTrendPerCapita(trendNational.years,trendNational.per_capita,true);
+  } else {
+    // County: build 112-114年 data
+    const yrs=['112年','113年','114年'];
+    const ohcaVals=yrs.map(y=>{const d=ohcaDataAll[y];return d&&d[region]?d[region].ohca:null;});
+    const srVals=yrs.map(y=>{
+      const rd=rescueDataAll[y];const od=ohcaDataAll[y];
+      if(!rd||!od||!rd[region]||!od[region])return null;
+      const r=rd[region],o=od[region];
+      if(r.total_success==null||o.ohca==null)return null;
+      return parseFloat(pct(r.total_success,o.ohca));
+    });
+    const drVals=yrs.map(y=>{
+      const rd=rescueDataAll[y];const od=ohcaDataAll[y];
+      if(!rd||!od||!rd[region])return null;
+      const r=rd[region],o=od[region]||{};
+      if(r.discharge==null)return null;
+      if(r.ohca==null)return null;
+      return parseFloat(pct(r.discharge,r.ohca));
+    });
+    const pcVals=yrs.map(y=>{
+      const rd=rescueDataAll[y],popd=populationAll[y];
+      if(!rd||!popd||!rd[region]||!popd[region])return null;
+      const discharge=rd[region].discharge;
+      if(discharge==null)return null;
+      return parseFloat((discharge/popd[region]*100000).toFixed(1));
+    });
+    renderTrendOhca(yrs,ohcaVals,false);
+    renderTrendRates(yrs,srVals,drVals,false);
+    renderTrendPerCapita(yrs,pcVals,false);
+  }
+}
+
+function renderTrendOhca(years,vals,isNat){
+  dc('trendOhca');
+  const color='rgba(0,212,255,0.88)';
+  charts['trendOhca']=new Chart(document.getElementById('chartTrendOhca'),{
+    type:'bar',
+    data:{labels:years,datasets:[{label:'OHCA 人次',data:vals,backgroundColor:years.map((_,i)=>i===years.length-1?color:'rgba(0,212,255,0.38)'),borderColor:color,borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:(ctx)=>` ${ctx.parsed.y!=null?ctx.parsed.y.toLocaleString():'N/A'} 人次`}}},
+      scales:{x:{ticks:{color:CD.color,font:{size:10},maxRotation:40},grid:{color:CD.grid}},
+        y:{ticks:{color:CD.color,font:{size:10}},grid:{color:CD.grid},title:{display:true,text:'人次',color:CD.color}}}}
+  });
+}
+
+function renderTrendRates(years,srVals,drVals,isNat){
+  dc('trendRates');
+  charts['trendRates']=new Chart(document.getElementById('chartTrendRates'),{
+    type:'line',
+    data:{labels:years,datasets:[
+      {label:'急救成功率(%)',data:srVals,borderColor:'#ff6b6b',backgroundColor:'rgba(255,107,107,0.07)',tension:0.3,pointRadius:5,fill:false},
+      {label:'康復出院率(%)',data:drVals,borderColor:'#06d6a0',backgroundColor:'rgba(6,214,160,0.07)',tension:0.3,pointRadius:5,fill:false},
+    ]},
+    options:{responsive:true,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{labels:{color:CD.color,font:{size:10},boxWidth:10}},
+        tooltip:{callbacks:{label:(ctx)=>ctx.parsed.y!=null?` ${ctx.dataset.label}: ${ctx.parsed.y}%`:` ${ctx.dataset.label}: N/A`}}},
+      scales:{x:{ticks:{color:CD.color,font:{size:10},maxRotation:40},grid:{color:CD.grid}},
+        y:{ticks:{color:CD.color,font:{size:10}},grid:{color:CD.grid},title:{display:true,text:'%',color:CD.color}}}}
+  });
+}
+
+function renderTrendPerCapita(years,vals,isNat){
+  dc('trendPerCap');
+  charts['trendPerCap']=new Chart(document.getElementById('chartTrendPerCap'),{
+    type:'bar',
+    data:{labels:years,datasets:[{label:'每10萬人口出院數',data:vals,backgroundColor:years.map((_,i)=>i===years.length-1?'rgba(245,158,11,0.88)':'rgba(245,158,11,0.38)'),borderColor:'#f59e0b',borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:(ctx)=>ctx.parsed.y!=null?` ${ctx.parsed.y} 人/10萬人口`:' N/A'}}},
+      scales:{x:{ticks:{color:CD.color,font:{size:10},maxRotation:40},grid:{color:CD.grid}},
+        y:{ticks:{color:CD.color,font:{size:10}},grid:{color:CD.grid},title:{display:true,text:'人/10萬人口',color:CD.color}}}}
+  });
+}
+
+// ===== INIT =====
+renderButtons();
+renderKPI('全國');
+makeCprChart('chartCprMetro','cprMetro',METRO,'全國',true);
+makeCprChart('chartCprCounty','cprCounty',COUNTIES,'全國',false);
+makeSuccessChart('chartSuccessMetro','successMetro',METRO,'全國',true);
+makeSuccessChart('chartSuccessCounty','successCounty',COUNTIES,'全國',false);
+renderLocationChart('全國');
+renderPerCapitaChart();
+renderMonthlyChart('全國');
+renderUtsteinCharts('全國');
+renderTable();
+</script>
+</body>
+</html>
