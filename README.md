@@ -25,3 +25,20 @@
 ## 資料來源
 
 內政部消防署一站通資料庫
+
+## 如何更新線上版
+
+每次修改 `救護儀表板.html` 後，只要在這個資料夾執行：
+
+```bash
+bash update.sh
+```
+
+或在 Finder 中**雙擊 `update.command`**（macOS 會自動開終端機執行）。
+
+腳本會自動：
+1. 複製 `../救護儀表板.html` 為 `index.html`
+2. `git commit` + `git push`
+3. 1–2 分鐘後 GitHub Pages 自動更新
+
+> 💡 若沒變更會自動跳過，不會建立空 commit。
