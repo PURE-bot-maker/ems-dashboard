@@ -4,7 +4,8 @@
 
 ## 線上瀏覽
 
-👉 **<https://你的帳號.github.io/ems-dashboard/>**（部署後請更新此連結）
+- 救護儀表板：<https://pure-bot-maker.github.io/ems-dashboard/>
+- OHCA 儀表板：<https://pure-bot-maker.github.io/ems-dashboard/ohca/>
 
 ## 功能
 
