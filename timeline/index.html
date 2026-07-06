@@ -1660,7 +1660,7 @@
 
 <script>
   // ── Counts ─────────────────────────────
-  const events = document.querySelectorAll('.event');
+  const events = document.querySelectorAll('article.event');
   const counts = { all: events.length, law: 0, org: 0, incident: 0, program: 0, train: 0, event: 0 };
   events.forEach(e => { counts[e.dataset.category] = (counts[e.dataset.category] || 0) + 1; });
   Object.keys(counts).forEach(k => {
@@ -1671,7 +1671,7 @@
   // Annotate each event with its year heading text for cross-event search
   document.querySelectorAll('.year-section').forEach(sec => {
     const yearText = sec.querySelector('.year-heading')?.textContent.toLowerCase() || '';
-    sec.querySelectorAll('.event').forEach(e => { e.dataset.yearText = yearText; });
+    sec.querySelectorAll('article.event').forEach(e => { e.dataset.yearText = yearText; });
   });
 
   // ── Filter state ──────────────────────
@@ -1689,7 +1689,7 @@
       e.classList.toggle('hidden', !(matchCat && matchQ));
     });
     document.querySelectorAll('.year-section').forEach(s => {
-      const hasVisible = Array.from(s.querySelectorAll('.event')).some(e => !e.classList.contains('hidden'));
+      const hasVisible = Array.from(s.querySelectorAll('article.event')).some(e => !e.classList.contains('hidden'));
       s.classList.toggle('empty', !hasVisible);
     });
   }
