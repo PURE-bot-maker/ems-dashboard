@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>救護大事紀 ・ EMS Timeline 1964–2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --card: #ffffff;
+    --ink: #1a1a1a;
+    --ink-soft: #374151;
+    --muted: #6b7280;
+    --muted-soft: #9ca3af;
+    --border: #e5e7eb;
+    --border-soft: #f0eee8;
+    --line: #d4d0c5;
+    --accent: #c0392b;
+    --accent-soft: #fdecea;
+
+    /* Category palette — muted, functional */
+    --cat-law:     #475569;  --cat-law-bg:     #f1f5f9;
+    --cat-org:     #1e40af;  --cat-org-bg:     #dbeafe;
+    --cat-incident:#b91c1c;  --cat-incident-bg:#fee2e2;
+    --cat-program: #b45309;  --cat-program-bg: #fef3c7;
+    --cat-train:   #15803d;  --cat-train-bg:   #dcfce7;
+    --cat-event:   #7e22ce;  --cat-event-bg:   #f3e8ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 48px 24px 96px; }
+
+  /* ── Header ────────────────────────────── */
+  header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid var(--ink);
+  }
+  h1 {
+    font-size: 34px;
+    margin: 0 0 8px;
+    letter-spacing: 0.01em;
+    font-weight: 700;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0 0 8px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+  .stats {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0;
+  }
+  /* ── Hero quote ──────────────────────── */
+  .hero-quote {
+    margin: 20px 0 0;
+    padding: 16px 20px;
+    border-left: 3px solid var(--accent);
+    background: var(--card);
+    border-radius: 0 6px 6px 0;
+  }
+  .hero-quote p {
+    margin: 0;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+  }
+  .hero-quote cite {
+    display: block;
+    margin-top: 10px;
+    font-style: normal;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── International parallel note ────── */
+  .intl-note {
+    display: block;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .intl-note::before {
+    content: '⟶ 國際對照　';
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  /* ── Source citation note ────────────── */
+  .src-note {
+    display: block;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .src-note::before {
+    content: '出處　';
+    font-weight: 600;
+  }
+
+  /* ── Filter bar ────────────────────────── */
+  .filters {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding: 16px 0;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+    z-index: 10;
+  }
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .filter-row:last-child { margin-bottom: 0; }
+  .filter-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-right: 4px;
+    min-width: 36px;
+  }
+  .search-input {
+    flex: 1;
+    min-width: 220px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 7px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--ink); }
+  .search-input::placeholder { color: var(--muted-soft); }
+  .search-clear {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 4px 8px;
+    font-family: inherit;
+  }
+  .search-clear:hover { color: var(--ink); }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--ink-soft);
+    padding: 6px 13px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+  .filter-chip:hover { border-color: var(--ink); }
+  .filter-chip.active {
+    background: var(--ink);
+    color: white;
+    border-color: var(--ink);
+  }
+  .filter-chip .count {
+    font-size: 11px;
+    opacity: 0.7;
+    font-variant-numeric: tabular-nums;
+  }
+  .filter-chip .swatch {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* ── Timeline structure ───────────────── */
+  .year-section { margin-bottom: 44px; scroll-margin-top: 180px; }
+  .year-heading {
+    font-size: 21px;
+    margin: 0 0 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .year-heading .ad {
+    font-size: 13.5px;
+    color: var(--muted-soft);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+  .year-heading .roc {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .events {
+    position: relative;
+    padding-left: 8px;
+  }
+
+  .event {
+    display: grid;
+    grid-template-columns: 84px 24px 1fr;
+    gap: 0;
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .event-date {
+    font-size: 13.5px;
+    color: var(--muted);
+    padding-top: 14px;
+    text-align: right;
+    padding-right: 10px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+  .event-rail {
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+  .event-rail::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: -14px;
+    width: 1px;
+    background: var(--line);
+    transform: translateX(-50%);
+  }
+  .event:last-child .event-rail::before { bottom: 0; }
+  .event-rail .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1.5px solid var(--ink);
+    margin-top: 17px;
+    position: relative;
+    z-index: 1;
+  }
+  .event-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-left: 12px;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .event-card:hover {
+    border-color: var(--ink);
+    transform: translateX(2px);
+  }
+  .event-card .head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+  .event-card h3 {
+    font-size: 16.5px;
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .event-card p {
+    font-size: 14.5px;
+    margin: 5px 0 0;
+    color: var(--ink-soft);
+    line-height: 1.65;
+  }
+  .event-card details {
+    margin-top: 10px;
+    font-size: 13.5px;
+  }
+  .event-card details summary {
+    cursor: pointer;
+    color: var(--muted);
+    list-style: none;
+    user-select: none;
+  }
+  .event-card details summary::-webkit-details-marker { display: none; }
+  .event-card details summary::before {
+    content: '▸ ';
+    display: inline-block;
+    transition: transform 0.15s;
+  }
+  .event-card details[open] summary::before { content: '▾ '; }
+  .event-card details .detail-body {
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: var(--border-soft);
+    border-radius: 6px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+  .event-card details .detail-body ul {
+    margin: 4px 0 0;
+    padding-left: 18px;
+  }
+  .event-card details .detail-body li { margin-bottom: 2px; }
+  .event-card details table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;
+    font-size: 13px;
+  }
+  .event-card details td, .event-card details th {
+    border-bottom: 1px solid var(--border);
+    padding: 4px 8px;
+    text-align: left;
+  }
+  .event-card details th { color: var(--muted); font-weight: 500; }
+
+  /* ── Tag styles ───────────────────────── */
+  .tag {
+    display: inline-block;
+    font-size: 11.5px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  .tag-law      { color: var(--cat-law);      background: var(--cat-law-bg); }
+  .tag-org      { color: var(--cat-org);      background: var(--cat-org-bg); }
+  .tag-incident { color: var(--cat-incident); background: var(--cat-incident-bg); }
+  .tag-program  { color: var(--cat-program);  background: var(--cat-program-bg); }
+  .tag-train    { color: var(--cat-train);    background: var(--cat-train-bg); }
+  .tag-event    { color: var(--cat-event);    background: var(--cat-event-bg); }
+
+  .swatch.law      { background: var(--cat-law); }
+  .swatch.org      { background: var(--cat-org); }
+  .swatch.incident { background: var(--cat-incident); }
+  .swatch.program  { background: var(--cat-program); }
+  .swatch.train    { background: var(--cat-train); }
+  .swatch.event    { background: var(--cat-event); }
+
+  /* ── Filtered out ─────────────────────── */
+  .event.hidden { display: none; }
+  .year-section.empty { display: none; }
+
+  /* ── Footer ──────────────────────────── */
+  footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13.5px;
+    line-height: 1.75;
+  }
+  footer p { margin: 0 0 6px; }
+
+  /* ── Responsive ──────────────────────── */
+  @media (max-width: 640px) {
+    .wrap { padding: 32px 16px 64px; }
+    .event { grid-template-columns: 58px 20px 1fr; }
+    .event-date { font-size: 11px; padding-right: 6px; }
+    .event-card { margin-left: 8px; padding: 10px 12px; }
+    .event-card h3 { font-size: 14px; }
+    .event-card p { font-size: 12.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>救護大事紀</h1>
+  <p class="subtitle">EMS Timeline · 1964 — 2026</p>
+  <p class="stats">綜整圖 1-2「臺灣緊急醫療救護重要發展紀事」與內政部消防署救災救護組整理之 2021 年起大事紀</p>
+  <blockquote class="hero-quote">
+    <p>"An EMS system that cannot be accountable to the citizens it serves will at best be mediocre."</p>
+    <cite>— Resuscitation Academy, Seattle（西雅圖復甦學院）</cite>
+  </blockquote>
+</header>
+
+<!-- ─── Filter Bar ───────────────────────── -->
+<div class="filters">
+  <div class="filter-row">
+    <span class="filter-label">搜尋</span>
+    <input type="search" id="search-input" class="search-input" placeholder="輸入關鍵字（事件名稱、描述、年份）⋯">
+    <button class="search-clear" id="search-clear" type="button" style="display:none">清除</button>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">類別</span>
+    <button class="filter-chip active" data-category="all">全部 <span class="count" id="count-all"></span></button>
+    <button class="filter-chip" data-category="law"><span class="swatch law"></span>法規 <span class="count" id="count-law"></span></button>
+    <button class="filter-chip" data-category="org"><span class="swatch org"></span>組織 <span class="count" id="count-org"></span></button>
+    <button class="filter-chip" data-category="incident"><span class="swatch incident"></span>事故 <span class="count" id="count-incident"></span></button>
+    <button class="filter-chip" data-category="program"><span class="swatch program"></span>計畫 <span class="count" id="count-program"></span></button>
+    <button class="filter-chip" data-category="train"><span class="swatch train"></span>訓練 <span class="count" id="count-train"></span></button>
+    <button class="filter-chip" data-category="event"><span class="swatch event"></span>活動 <span class="count" id="count-event"></span></button>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">年代</span>
+    <a class="filter-chip" href="#year-53">民國 53–69</a>
+    <a class="filter-chip" href="#year-79">民國 70–89</a>
+    <a class="filter-chip" href="#year-90">民國 90–99</a>
+    <a class="filter-chip" href="#year-101">民國 100–109</a>
+    <a class="filter-chip" href="#year-110">民國 110</a>
+    <a class="filter-chip" href="#year-111">民國 111</a>
+    <a class="filter-chip" href="#year-112">民國 112</a>
+    <a class="filter-chip" href="#year-113">民國 113</a>
+    <a class="filter-chip" href="#year-114">民國 114</a>
+    <a class="filter-chip" href="#year-115">民國 115</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!--                          TIMELINE                                -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<!-- ─── 民國 53 年 ─────────────────────── -->
+<section class="year-section" id="year-53">
+  <h2 class="year-heading"><span class="roc">民國 53 年</span><span class="ad">1964</span></h2>
+  <div class="events">
+    <article class="event" data-category="law">
+      <div class="event-date">—</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>消防警察隊管理規則函頒</h3></div>
+        <p>各縣市政府依據函頒之消防警察隊管理規則規定，消防警察隊應配置消防車數量，為消防裝備配置之早期制度依據。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 58 年 ─────────────────────── -->
+<section class="year-section" id="year-58">
+  <h2 class="year-heading"><span class="roc">民國 58 年</span><span class="ad">1969</span></h2>
+  <div class="events">
+    <article class="event" data-category="org">
+      <div class="event-date">1.1</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-org">組織</span><h3>勤務指揮中心成立 ・「09」變更為「119」</h3></div>
+        <p>消防大隊成立勤務指揮中心，將原來散置各消防分隊之「09」號電話統一納入指揮，並變更代號為「119」，集中受理火災及救災之報案。自此「119」成為台灣消防之代號。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 59 年 ─────────────────────── -->
+<section class="year-section" id="year-59">
+  <h2 class="year-heading"><span class="roc">民國 59 年</span><span class="ad">1970</span></h2>
+  <div class="events">
+    <article class="event" data-category="org">
+      <div class="event-date">3.1</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-org">組織</span><h3>台北消防大隊籌備救護車</h3></div>
+        <p>台北政府警察局消防大隊完成 3 部救護車籌備，擔任一般傷病患救護工作。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 79 年 ─────────────────────── -->
+<section class="year-section" id="year-79">
+  <h2 class="year-heading"><span class="roc">民國 79 年</span><span class="ad">1990</span></h2>
+  <div class="events">
+    <article class="event" data-category="law">
+      <div class="event-date">3.14</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>緊急醫療救護網計畫</h3></div>
+        <p>行政院核定『緊急醫療救護網計畫』，建構區域救護網絡。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 83 年 ─────────────────────── -->
+<section class="year-section" id="year-83">
+  <h2 class="year-heading"><span class="roc">民國 83 年</span><span class="ad">1994</span></h2>
+  <div class="events">
+    <article class="event" data-category="org">
+      <div class="event-date">11.19</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-org">組織</span><h3>中華民國急診醫學會成立</h3></div>
+        <p>急診醫學專業學會正式成立，推動急診醫療發展。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 84 年 ─────────────────────── -->
+<section class="year-section" id="year-84">
+  <h2 class="year-heading"><span class="roc">民國 84 年</span><span class="ad">1995 ・ EMS 元年</span></h2>
+  <div class="events">
+    <article class="event" data-category="org">
+      <div class="event-date">3.1</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-org">組織</span><h3>內政部消防署成立</h3></div>
+        <p>消防專責機關成立，緊急救護正式進入專責化階段。</p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">8.9</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>制定公布緊急醫療救護法</h3></div>
+        <p>總統令制定公布全文 55 條，我國緊急醫療救護體系的法源依據確立。至今歷經 89、91、94、96（全文修正）及 102 年共 5 次修正，各次修正詳見本時間軸對應年份。
+          <span class="src-note">全國法規資料庫《緊急醫療救護法》沿革。</span>
+          <span class="intl-note">美國於 1973 年（早台灣 22 年）即頒布《緊急醫療救護體系法》(Emergency Medical Service Systems Act)。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">8.11</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>消防法修正</h3></div>
+        <p>緊急救護列為消防三大任務之一（救火、救護、救災），確立消防機關的救護法定職責。本次為消防法 74.11.29 制定公布後第 1 次修正；本法存續至今，迄 113.11.29 止共歷經 14 次修正（第 14 次修正即消防人員安全及衛生防護專章，見 113 年）。
+          <span class="src-note">全國法規資料庫《消防法》沿革。</span>
+          <span class="intl-note">日本於 1963 年（早台灣 32 年）修正消防法，明確規定消防單位負責運送受傷病人。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 85 年 ─────────────────────── -->
+<section class="year-section" id="year-85">
+  <h2 class="year-heading"><span class="roc">民國 85 年</span><span class="ad">1996</span></h2>
+  <div class="events">
+    <article class="event" data-category="law">
+      <div class="event-date">5.29</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>緊急救護辦法發布</h3></div>
+        <p>內政部（台內消字第 8577215 號令）與行政院衛生署（衛署醫字第 85020492 號令）會銜訂定發布全文 20 條，規範救護出勤實務細節；同年 10.16 即會銜修正發布第 13 條條文（第 1 次修正）。本辦法存續至今，共歷經 3 次修正，最新為 101.3.26。
+          <span class="src-note">全國法規資料庫《緊急救護辦法》沿革。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 86 年 ─────────────────────── -->
+<section class="year-section" id="year-86">
+  <h2 class="year-heading"><span class="roc">民國 86 年</span><span class="ad">1997</span></h2>
+  <div class="events">
+    <article class="event" data-category="train">
+      <div class="event-date">3</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>第一次醫療指導員訓練</h3></div>
+        <p>首度舉辦醫療指導員 (Medical Director) 訓練課程。</p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">4</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>救護技術員管理要點公告</h3></div>
+        <p>行政院衛生署公告，建立救護技術員之分級訓練與資格管理制度。本要點屬行政規則，其管理事項自 97.7.29《救護技術員管理辦法》訂定發布後，改依該辦法規範。</p>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">9</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>第一屆署長盃緊急救護技術操作評比</h3></div>
+        <p>首屆全國性救護技術操作競賽，促進各縣市技術交流與標準化。</p>
+      </div>
+    </article>
+    <article class="event" data-category="org">
+      <div class="event-date">12</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-org">組織</span><h3>急診醫學科成為第 19 個專科</h3></div>
+        <p>衛生署公告急診醫學專科醫師甄審原則，急診醫學科正式為第 19 個主專科醫師科別，間接加速 EMS 推動。
+          <span class="intl-note">美國於 1979 年（早台灣 18 年）即正式認證急診醫學專科醫師。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 87 年 ─────────────────────── -->
+<section class="year-section" id="year-87">
+  <h2 class="year-heading"><span class="roc">民國 87 年</span><span class="ad">1998</span></h2>
+  <div class="events">
+    <article class="event" data-category="org">
+      <div class="event-date">9.7</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-org">組織</span><h3>桃園縣消防局成立專責救護隊</h3></div>
+        <p>全國最早成立的專責救護隊，啟動救護專責化的先例。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 88 年 ─────────────────────── -->
+<section class="year-section" id="year-88">
+  <h2 class="year-heading"><span class="roc">民國 88 年</span><span class="ad">1999</span></h2>
+  <div class="events">
+    <article class="event" data-category="train">
+      <div class="event-date">4–12</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>第一期緊急醫療救護訓練教官班</h3></div>
+        <p>衛生署、內政部消防署與軍醫局共同辦理，建立教官培訓制度。學員來自各縣市消防機關、急救責任醫院急診部與軍方，受訓至少 15 週，並於臺北市 EMT 訓練班實地授課。
+          <span class="src-note">紀志賢、廖訓禎〈臺灣地區救護技術員執行到院前救護之需求性評估〉，《台灣急診醫學會醫誌》2002;4(2):59–70。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="incident">
+      <div class="event-date">9.21</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-incident">事故</span><h3>集集大地震（921 大地震）</h3></div>
+        <p>台灣百年來最大之天然災害事件，共造成 2,415 人不幸死亡之嚴重慘劇。此次災害促使政府全面檢討災害防救體制。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">11.17</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>119 消防救護車輛外觀統一標識</h3></div>
+        <p>全國消防救護車輛外觀標識統一發表，提升民眾辨識度。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 89 年 ─────────────────────── -->
+<section class="year-section" id="year-89">
+  <h2 class="year-heading"><span class="roc">民國 89 年</span><span class="ad">2000</span></h2>
+  <div class="events">
+    <article class="event" data-category="law">
+      <div class="event-date">2.9</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>緊急醫療救護法修正（第 1 次）</h3></div>
+        <p>總統令修正公布第 4、5、8～11、15、20、24、30、31、41、52 條條文，為本法制定後第 1 次修正。修正後初級、中級救護技術員在醫師指導下亦得於院外施行自動體外電擊去顫（AED）。
+          <span class="src-note">全國法規資料庫《緊急醫療救護法》沿革。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">7.19</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>災害防救法公布</h3></div>
+        <p>因應 921 集集大地震後對災害防救體制的全面檢討，總統令制定公布《災害防救法》全文 52 條，賦予消防新的任務 — 除火災外，更要負責各種天然與人為災害的防救工作。本法存續至今，共歷經 11 次修正，含 111.6.15 全文修正（66 條），最新為 114.5.28 修正第 3、22、48 條。
+          <span class="src-note">全國法規資料庫《災害防救法》沿革。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 90 年 ─────────────────────── -->
+<section class="year-section" id="year-90">
+  <h2 class="year-heading"><span class="roc">民國 90 年</span><span class="ad">2001</span></h2>
+  <div class="events">
+    <article class="event" data-category="train">
+      <div class="event-date">3.12</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>高級救護技術員訓練時數及課程綱要</h3></div>
+        <p>衛生署修正『救護技術員管理要點』，明訂 EMT-P 訓練時數與課程綱要。本要點管理事項其後自 97.7.29《救護技術員管理辦法》訂定發布後，改依該辦法規範。
+          <span class="intl-note">日本於 1991 年（早台灣 10 年）即頒布《救急救命士法》，制度類似臺灣的高級救護技術員。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 91 年 ─────────────────────── -->
+<section class="year-section" id="year-91">
+  <h2 class="year-heading"><span class="roc">民國 91 年</span><span class="ad">2002</span></h2>
+  <div class="events">
+    <article class="event" data-category="law">
+      <div class="event-date">1.30</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>緊急醫療救護法修正（第 2 次）</h3></div>
+        <p>總統令修正公布第 15、41、48～50 條條文，並增訂第 48-1、53-1 條條文，為本法第 2 次修正。
+          <span class="src-note">全國法規資料庫《緊急醫療救護法》沿革。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="org">
+      <div class="event-date">6</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-org">組織</span><h3>內政部消防署成立空中消防隊</h3></div>
+        <p>依 90.12.17 訂定發布之《內政部消防署空中消防隊籌備處暫行組織規程》（台內消字第 9063402 號令）推動籌設，正式編組空中緊急運送傷病患任務，建立空中救護能量。94.11.9《內政部空中勤務總隊組織法》施行後，空中消防業務與人員併入內政部空中勤務總隊（見 94 年），籌備處暫行組織規程並於 95.5.8 廢止（台內人字第 0950072151 號令）。
+          <span class="src-note">全國法規資料庫《內政部消防署空中消防隊籌備處暫行組織規程》（廢止法規）沿革、《內政部空中勤務總隊組織法》沿革。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="train">
+      <div class="event-date">6</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>首篇救護技術員技能需求性評估研究發表</h3></div>
+        <p>紀志賢、廖訓禎以第一期緊急醫療救護訓練教官班學員為對象（有效問卷 39 份），評估《緊急醫療救護法》所定 31 項到院前救護技能：最重要且最常用的技能均屬初級救護技術員範圍；氣管內插管、給藥、抗休克褲（PASG）與催吐劑被評為重要性最低，作者建議修法檢討；反應時間則被視為救護系統最重要的運作指標。
+          <span class="src-note">紀志賢、廖訓禎〈臺灣地區救護技術員執行到院前救護之需求性評估〉，《台灣急診醫學會醫誌》2002;4(2):59–70。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 92 年 ─────────────────────── -->
+<section class="year-section" id="year-92">
+  <h2 class="year-heading"><span class="roc">民國 92 年</span><span class="ad">2003</span></h2>
+  <div class="events">
+    <article class="event" data-category="train">
+      <div class="event-date">8–12</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>第一期高級救護技術員訓練班</h3></div>
+        <p>內政部消防署辦理首期 EMT-P 訓練，培育高階救護人力。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 94 年 ─────────────────────── -->
+<section class="year-section" id="year-94">
+  <h2 class="year-heading"><span class="roc">民國 94 年</span><span class="ad">2005</span></h2>
+  <div class="events">
+    <article class="event" data-category="law">
+      <div class="event-date">2.5</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>緊急醫療救護法修正（第 3 次）</h3></div>
+        <p>總統令修正公布第 6 條條文，並增訂第 22-1 條條文，為本法第 3 次修正。
+          <span class="src-note">全國法規資料庫《緊急醫療救護法》沿革。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">4.28</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>緊急救護辦法修正</h3></div>
+        <p>內政部（台內消字第 0940092900 號令）與行政院衛生署（衛署醫字第 0940201504 號令）會銜修正發布第 4～7、18 條條文，並刪除第 19 條條文（第 2 次修正）。
+          <span class="src-note">全國法規資料庫《緊急救護辦法》沿革。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="org">
+      <div class="event-date">11.9</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-org">組織</span><h3>內政部空中勤務總隊成立</h3></div>
+        <p>依 94.6.22 制定公布之《內政部空中勤務總隊組織法》（行政院令定自 94.11.9 施行），統籌執行與支援空中救災、救難、救護、觀測偵巡及運輸事項。內政部消防署空中消防隊之業務與人員隨同移撥併入，空中救護（含轉診、器官移植運送之支援）自此由空勤總隊統籌。
+          <span class="src-note">全國法規資料庫《內政部空中勤務總隊組織法》沿革及第 1、2、6 條條文。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 96 年 ─────────────────────── -->
+<section class="year-section" id="year-96">
+  <h2 class="year-heading"><span class="roc">民國 96 年</span><span class="ad">2007</span></h2>
+  <div class="events">
+    <article class="event" data-category="law">
+      <div class="event-date">7.11</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>緊急醫療救護法全文修正（第 4 次）</h3></div>
+        <p>總統令修正公布全文 58 條，並自公布日施行，為本法制定以來最大幅度之全案修正（第 4 次修正）。現行《救護技術員管理辦法》、《醫療指導醫師實施辦法》、《醫院緊急醫療能力分級標準》等子法，均依本次修正後之授權條文訂定。
+          <span class="src-note">全國法規資料庫《緊急醫療救護法》沿革。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 97 年 ─────────────────────── -->
+<section class="year-section" id="year-97">
+  <h2 class="year-heading"><span class="roc">民國 97 年</span><span class="ad">2008</span></h2>
+  <div class="events">
+    <article class="event" data-category="law">
+      <div class="event-date">7.29</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>救護技術員管理辦法訂定發布</h3></div>
+        <p>行政院衛生署（衛署醫字第 0970214520 號令）依緊急醫療救護法授權訂定發布全文 17 條，並自發布日施行。救護技術員之分級訓練與資格管理自此提升至法規命令位階，取代原以公告要點管理之模式。本辦法存續至今，第 1 次修正為 113.5.15 全文修正。
+          <span class="src-note">全國法規資料庫《救護技術員管理辦法》沿革。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 98 年 ─────────────────────── -->
+<section class="year-section" id="year-98">
+  <h2 class="year-heading"><span class="roc">民國 98 年</span><span class="ad">2009</span></h2>
+  <div class="events">
+    <article class="event" data-category="law">
+      <div class="event-date">6.30</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>醫療指導醫師實施辦法</h3></div>
+        <p>行政院衛生署（衛署醫字第 0980260695 號令）與內政部（台內消字第 0980820369 號令）依緊急醫療救護法第 25 條授權會銜訂定發布全文 7 條，自 99.7.1 施行，確立醫療指導醫師制度的法源。本辦法存續至今，迄未修正。
+          <span class="src-note">全國法規資料庫《醫療指導醫師實施辦法》。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">7.13</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>醫院緊急醫療能力分級標準</h3></div>
+        <p>行政院衛生署（衛署醫字第 0980209066 號令）訂定發布全文 5 條，建立醫院急救責任分級架構（重度級、中度級、一般級），與後送機制連動。本標準存續至今，第 1 次修正為 101.10.30。
+          <span class="src-note">全國法規資料庫《醫院緊急醫療能力分級標準》沿革。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 101 年 ─────────────────────── -->
+<section class="year-section" id="year-101">
+  <h2 class="year-heading"><span class="roc">民國 101 年</span><span class="ad">2012</span></h2>
+  <div class="events">
+    <article class="event" data-category="law">
+      <div class="event-date">3.26</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>緊急救護辦法修正</h3></div>
+        <p>內政部（台內消字第 1010821660 號令）與行政院衛生署（衛署醫字第 1010205778 號令）會銜修正發布第 5 條條文（第 3 次修正），為本辦法現行最新修正。
+          <span class="src-note">全國法規資料庫《緊急救護辦法》沿革。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">10.30</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>醫院緊急醫療能力分級標準修正（第 1 次）</h3></div>
+        <p>行政院衛生署（衛署醫字第 1010212440 號令）修正發布第 2 條條文附表，為本標準訂定後第 1 次修正，亦為現行最新修正。
+          <span class="src-note">全國法規資料庫《醫院緊急醫療能力分級標準》沿革。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 102 年 ─────────────────────── -->
+<section class="year-section" id="year-102">
+  <h2 class="year-heading"><span class="roc">民國 102 年</span><span class="ad">2013</span></h2>
+  <div class="events">
+    <article class="event" data-category="law">
+      <div class="event-date">1.16</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>緊急醫療救護法修正（第 5 次）</h3></div>
+        <p>總統令修正公布第 3、5、8、12、17、22、24、25、30、32、33 條條文，並增訂第 14-1、14-2 條條文，為本法第 5 次修正，亦為現行最新修正。第 14-1 條確立公共場所應設置 AED 之法源，第 14-2 條明定善意施救者之責任減免，開啟全民 CPR＋AED 施救網絡。
+          <span class="src-note">全國法規資料庫《緊急醫療救護法》沿革。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">7.11</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>公共場所必要緊急救護設備管理辦法</h3></div>
+        <p>行政院衛生署（衛署醫字第 1020202525 號令）依緊急醫療救護法第 14-1 條授權訂定發布全文 14 條，推動公共場所 AED 普及。本辦法存續至今，第 1 次修正為 112.5.10 全文修正。
+          <span class="src-note">全國法規資料庫《公共場所必要緊急救護設備管理辦法》沿革。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 106 年 ─────────────────────── -->
+<section class="year-section" id="year-106">
+  <h2 class="year-heading"><span class="roc">民國 106 年</span><span class="ad">2017 ・ 救護週元年</span></h2>
+  <div class="events">
+    <article class="event" data-category="event">
+      <div class="event-date">9.9</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>首屆救護週</h3></div>
+        <p>以 9 月 9 日「救護日」為核心，首度辦理救護週系列活動，自此每年於 9.9 前後辦理。民國 110 年起每年訂定主題與 Slogan。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 107 年 ─────────────────────── -->
+<section class="year-section" id="year-107">
+  <h2 class="year-heading"><span class="roc">民國 107 年</span><span class="ad">2018</span></h2>
+  <div class="events">
+    <article class="event" data-category="event">
+      <div class="event-date">5.19</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>全民守護者 APP 入選首屆總統盃黑客松十強</h3></div>
+        <p>臺北市政府消防局與衛生福利部醫事司、中保關懷社會福利基金會組成「OHCA 急救先鋒隊」，以全民守護者 APP 提案參加首屆總統盃社會創新黑客松，自 104 件提案中通過複選入選十強，進入 6.2 總統府決選角逐卓越團隊。
+          <span class="src-note">總統盃黑客松官網 2018 年賽程紀錄。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">6.2</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>救急救難一站通獲首屆總統盃黑客松卓越團隊</h3></div>
+        <p>由高雄市政府衛生局主導，協同屏東縣、澎湖縣衛生局、高雄市政府消防局、高雄醫學大學附設醫院、中央研究院 GIS 研究專題中心等單位共同提案之「救急救難一站通」，於總統府決選 Demo Day 獲選為五組卓越團隊之一，由總統親自頒獎，為日後救急救難一站通系統推動之濫觴。
+          <span class="src-note">總統府新聞稿（民國 107 年 6 月 2 日）。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">9.29</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>全民守護者 APP 發表</h3></div>
+        <p>臺北市政府消防局於國家防災日活動發表全國首創全民守護者 APP，於受理 OHCA 案件時召喚鄰近具急救能力之民眾攜 AED 就近施救，縮短救護車抵達前之急救空窗期，為亞洲第二個此類召喚系統（第一為新加坡 myResponder）。112 年第 2 季由內政部消防署全國版急救先鋒 APP（111.9.2 上架）接手服務，功成身退。</p>
+      </div>
+    </article>
+    <article class="event" data-category="train">
+      <div class="event-date">—</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>第一期民間自辦高級救護技術員</h3></div>
+        <p>開放民間訓練機構辦理 EMT-P 訓練。</p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">—</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>救護反應時間 KPI 納入國發計畫</h3></div>
+        <p>正式納入國家發展計畫，目標「救護反應時間 ≤ 6 分鐘達成率達 90%」。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">—</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>林堉璘宏泰公益信託捐贈自動心肺復甦機</h3></div>
+        <p>107 至 108 年間，公益信託林堉璘宏泰教育文化公益基金投入 257 台自動心肺復甦機予第一線消防緊急救護教育，並成為 111.9.6 與內政部消防署簽署合作交流備忘錄之基礎。
+          <span class="src-note">內政部消防署與林堉璘宏泰公益信託／教育基金會《合作交流備忘錄》（民國 111 年 9 月 6 日）。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 108 年 ─────────────────────── -->
+<section class="year-section" id="year-108">
+  <h2 class="year-heading"><span class="roc">民國 108 年</span><span class="ad">2019</span></h2>
+  <div class="events">
+    <article class="event" data-category="event">
+      <div class="event-date">6.27</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>台灣首辦 GRA 研討會</h3></div>
+        <p>在台灣第一次舉辦全球復甦聯盟 (Global Resuscitation Alliance) 研討會，與國際接軌。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ─── 民國 109 年 ─────────────────────── -->
+<section class="year-section" id="year-109">
+  <h2 class="year-heading"><span class="roc">民國 109 年</span><span class="ad">2020</span></h2>
+  <div class="events">
+    <article class="event" data-category="law">
+      <div class="event-date">1.22</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>消防機關緊急救護教官培訓及管理要點訂頒</h3></div>
+        <p>內政部消防署訂頒《消防機關緊急救護教官培訓及管理要點》，確立全國救護教官培訓制度與管理規範。</p>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">2.8</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>COVID-19 專機（郵輪）返台載送就醫勤務</h3></div>
+        <p>疫情初期配合中央流行疫情指揮中心執行邊境後送勤務：2.8 寶瓶星號、2.21 鑽石公主號、3.10–11 湖北省武漢包機、3.29–30 與 4.20–21 上海市類包機，合計出動 113 人、41 輛救護車。同期並建置健保虛擬專用網路（VPN），供全國 119 勤務指揮中心派遣時即時查詢旅遊史／接觸史，確保第一線救護安全。</p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">4.10</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>災害事故調查會設置辦法訂定發布</h3></div>
+        <p>內政部（台內消字第 1090821909 號令）依消防法第 27-1 條授權訂定發布全文 16 條，並自發布日施行，建立消防、義勇消防人員重大傷亡事故之調查制度。本辦法存續至今，第 1 次修正為 114.5.29 全案修正。
+          <span class="src-note">全國法規資料庫《災害事故調查會設置辦法》沿革。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">—</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>救護週停辦</h3></div>
+        <p>因 COVID-19 疫情，本年度救護週停辦一年。民國 110 年恢復辦理並開始訂定年度主題。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">6.29</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>COVID-19 防疫工作獎勵金制度</h3></div>
+        <p>內政部消防署自 109 年起建立 COVID-19 防疫工作獎勵金制度，獎勵配合中央流行疫情指揮中心及各縣市衛生局執行確診／疑似病患載送與清消之第一線消防及國軍協勤人員。核心規範為「各級消防機關執行嚴重特殊傳染性肺炎防疫工作獎勵金核發作業原則」（內政部於 110 年 10 月 27 日以內授消字第 1100825792 號函訂定發布、溯自 110 年 5 月 14 日生效，以嚴重特殊傳染性肺炎防治及紓困振興特別條例第 2 條為法源），單趟每載送 1 名病患核發上限 3,000 元、載送 5 名以上上限 15,000 元；全案整體經費 4 億 1,161 萬元，累計執行 3 億 9,176 萬 1,000 元、執行率 95.18%，該作業原則並隨特別條例施行屆滿，自 112 年 7 月 1 日停止適用。</p>
+        <details>
+          <summary>核發規定演變與經費</summary>
+          <div class="detail-body">
+            <ul>
+              <li>109 年 6 月 29 日訂定獎勵要點：團體績效制，依載送人數核發 10–150 萬元（未滿 50 人 10 萬元、1,000 人以上 150 萬元）</li>
+              <li>團體獎勵金階段由內政部消防署業務費支應（109 年移緩濟急挪用原「亞洲消防首長年會」經費），依載送人次核發 3–50 萬元團體獎勵金：109 年發放 384 萬元、110 年 1 月 1 日至 5 月 13 日發放 67 萬 2,000 元，合計 451 萬 2,000 元，全數執行完畢；110 年 5 月 14 日起銜接特別預算按人核發</li>
+              <li>110 年改制為按人核發：「各級消防機關執行嚴重特殊傳染性肺炎防疫工作獎勵金核發作業原則」經行政院 110 年 10 月 22 日院臺忠字第 1100033062 號函核定，由內政部於 110 年 10 月 27 日以內授消字第 1100825792 號函訂定發布、溯自 110 年 5 月 14 日生效；嗣經內政部於 111 年 10 月 4 日以台內消字第 1110826020 號函修正，對象納入國軍協勤人員。單趟每載送 1 名病患上限 3,000 元、載送 5 名以上上限 15,000 元；核發期間自 110 年 5 月 14 日起，載送疑似病患至 111 年 6 月 30 日、載送確診病患至 112 年 6 月 30 日</li>
+              <li>經費結構：紓困特別預算第 3 次追加編列 1 億 126 萬 2,000 元、第 4 次追加編列 1,185 萬 6,000 元；111 年 4–5 月本土疫情大爆發、載送量暴增（單月逾 2.2 萬人次）致特別預算不敷，另由內政部本移緩濟急原則調整預算支應 2 億 9,849 萬 2,000 元，整體經費合計 4 億 1,161 萬元</li>
+              <li>全案累計執行經費 3 億 9,176 萬 1,000 元，執行率 95.18%，剩餘 1,984 萬 9,000 元未執行</li>
+              <li>因疫情趨緩、防疫政策放寬，自 112 年 1 月起不再受理申請；作業原則隨特別條例施行屆滿，由內政部消防署於 112 年 7 月 27 日以消署護字第 1120700164 號函發布，自 112 年 7 月 1 日停止適用</li>
+            </ul>
+          </div>
+        </details>
+        <p><span class="src-note">《各級消防機關執行嚴重特殊傳染性肺炎防疫工作獎勵金核發作業原則》全文及沿革（內政部 110 年 10 月 27 日內授消字第 1100825792 號函訂定發布、112 年 7 月 1 日停止適用；植根法律網，查閱日 2026.7.6）、內政部消防署歷次紓困特別預算執行情形書面報告（110.10.1）、獎勵金發放至 111 年 12 月底止函暨全國核發明細（111.12.6）、內政部消防署防疫工作獎勵金整體經費執行統計（全案結算）。</span></p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">7</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>精神醫療緊急處置線上諮詢服務試辦</h3></div>
+        <p>衛福部委託草屯療養院試辦「精神醫療緊急處置線上諮詢服務與留觀服務」，提供基層警、消、公衛護理與社工，有關社區精神病人緊急狀況的 24 小時電話諮詢服務。為後續 CIT 推動之鋪墊。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">10.14</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>救急救難一站通系統推動</h3></div>
+        <p>數位救護資訊整合系統正式啟動，2025 年榮獲 AAEMS Institutional Award 亞洲緊急醫療救護協會機構獎。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════ 民國 110 ═══════════════ -->
+<section class="year-section" id="year-110">
+  <h2 class="year-heading"><span class="roc">民國 110 年</span><span class="ad">2021</span></h2>
+  <div class="events">
+    <article class="event" data-category="incident">
+      <div class="event-date">4.2</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-incident">事故</span><h3>台鐵太魯閣 408 車次清水隧道出軌</h3></div>
+        <p>近年最重大鐵路事故，啟動大量傷病患緊急救護機制；4 小時 55 分救出所有傷者，總出動 7,708 人、160 輛車。</p>
+        <details>
+          <summary>救護時序與規模</summary>
+          <div class="detail-body">
+            <strong>救護時序</strong>
+            <table>
+              <tr><th>時間</th><th>事項</th></tr>
+              <tr><td>09:31</td><td>第 1 通報案人報案</td></tr>
+              <tr><td>09:42</td><td>新秀分隊到達現場，確認大量傷病患</td></tr>
+              <tr><td>09:46</td><td>通知衛生局啟動大量傷病患機制</td></tr>
+              <tr><td>09:57</td><td>衛生局啟動機制，通知 4 家急救責任醫院</td></tr>
+              <tr><td>10:33</td><td>成立救護指揮站暨檢傷站、後送站</td></tr>
+              <tr><td>11:23</td><td>成立救護車集結站</td></tr>
+              <tr><td>11:39</td><td>成立醫療站</td></tr>
+              <tr><td>14:37</td><td>救出所有傷者</td></tr>
+            </table>
+            <p style="margin-top:10px"><strong>救護規模（截至 4.13）</strong></p>
+            <ul>
+              <li>死亡（黑卡）47 人、重傷（紅卡）3 人、中傷（黃卡）18 人、輕傷（綠卡）86 人，合計 154 人</li>
+              <li>總出動 7,708 人，車輛 160 輛（救護車 57 輛），全程 4 小時 55 分</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </article>
+    <article class="event" data-category="incident">
+      <div class="event-date">5–7</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-incident">事故</span><h3>COVID-19 三級警戒消防救護應變</h3></div>
+        <p>5.15 全國升為三級警戒；消防機關啟動強化應變措施，函發應變指引、訂定防疫專責救護車調派機制。</p>
+        <details>
+          <summary>主要應變措施</summary>
+          <div class="detail-body">
+            <ul>
+              <li>5.21 函發《消防機關因應嚴重特殊傳染性肺炎第三四級警戒救護應變指引》</li>
+              <li>訂定防疫專責救護車調派機制，疑似或確診案件由指定防疫救護車載運</li>
+              <li>救護人員全程著指定等級防護裝備（PAPR / N95、護目鏡、防護衣、手套）</li>
+              <li>消防人員列第 2 優先順序接種 COVID-19 疫苗</li>
+              <li>7.16 函發《消防人員因應 COVID-19 篩檢通報及後續處理原則彙編》</li>
+              <li>10.15 函頒「各級消防機關執行嚴重特殊傳染性肺炎防疫工作獎勵金核發作業原則」</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">5–7</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>《火神的眼淚》電視劇引發消防勤業務關注</h3></div>
+        <p>電視劇播出引發立委及各界關注消防勤業務，內政部消防署藉機推動救護安全改革。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">5.28</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>消防救護車巴騰堡格紋標識函發</h3></div>
+        <p>推動消防救護車採用新式巴騰堡 (Battenburg) 格紋反光標識，提升辨識度及行駛安全，與國際接軌。</p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">6.1</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>三級疫情警戒救護應變指引發布</h3></div>
+        <p>內政部消防署於 110 年 6 月 1 日以消署護字第 1100700111 號函發布「消防機關因應嚴重特殊傳染性肺炎第三級疫情警戒救護應變指引」，自即日生效，統一全國三級警戒期間之救護派遣、感染管制與載送作業。</p>
+        <details>
+          <summary>背景與配套</summary>
+          <div class="detail-body">
+            <ul>
+              <li>背景：110 年 5 月本土疫情升溫，5 月 15 日雙北、5 月 19 日全國提升至第三級警戒</li>
+              <li>指引規範三級警戒期間救護派遣分流、個人防護裝備等級、救護車清消，以及載送疑似／確診病患之作業流程</li>
+              <li>配套：110 年 5 月 31 日消署護字第 1100700113 號函，消防人員涉確診個案接觸者匡列時得比照醫療照護人員彈性作法（以篩檢取代檢疫、工作期間全程配戴口罩）</li>
+              <li>另配合疫情推動：救護派遣落實 TOCC 詢問、防疫專責與負壓救護車調度、防疫計程車及國軍支援載運等機制；相關指引於疫情降級後陸續停止適用</li>
+            </ul>
+          </div>
+        </details>
+        <p><span class="src-note">內政部消防署 110 年 6 月 1 日消署護字第 1100700111 號函；「本署因應 COVID-19 相關指引調整規劃」彙整表。</span></p>
+      </div>
+    </article>
+    <article class="event" data-category="incident">
+      <div class="event-date">6.30</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-incident">事故</span><h3>彰化喬友百貨舊大樓（防疫旅館）火災</h3></div>
+        <p>出動防疫專責救護車 10 輛、一般救護車 4 輛；救出 31 人，3 名 OHCA；3 名消防人員受傷送醫（含 1 名 OHCA）；179 名救災人員防疫採檢全數陰性。</p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">—</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>救護反應時間 KPI 修訂</h3></div>
+        <p>配合實務修訂為「救護反應時間 ≤ 10 分鐘達成率達 90%」，納入內政部消防署施政績效管制，作為各縣市年度考核指標。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">8</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>救急救難一站通（110–113 年）四年計畫推進</h3></div>
+        <p>由衛福部與內政部聯合提案，建構六大子系統：電子救護紀錄表 APP、DACPR 品管系統、救護技術員管理、救護派遣指引、急救技能宣導、救護車出勤事故管理。</p>
+        <p><strong>四年成果（截至 113 年）</strong>：完成資料交換平台、11 個應用系統與 3 個應用服務。</p>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">9.5–11</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>110 年救護週 ・「救護從鈴響開始」</h3></div>
+        <p>主題 Slogan：<strong>救護從鈴響開始 · We Help, Right Away</strong>。自此每年訂定主題（民國 109 年因疫情停辦一年後恢復）。</p>
+      </div>
+    </article>
+    <article class="event" data-category="train">
+      <div class="event-date">9.9</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>中級救護技術員教科書正式出版</h3></div>
+        <p>於救護日（9.9）正式出版，為中級救護技術員（EMT-2）核心教材。</p>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">9.15–16</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>110 年國家防災日大規模震災動員演練</h3></div>
+        <p>跨機關大規模震災動員演練，強化大量傷病患應變能量。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════ 民國 111 ═══════════════ -->
+<section class="year-section" id="year-111">
+  <h2 class="year-heading"><span class="roc">民國 111 年</span><span class="ad">2022</span></h2>
+  <div class="events">
+    <article class="event" data-category="event">
+      <div class="event-date">3</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>內政部防疫專書《就位・無畏》出版，消防署撰「後送」篇章</h3></div>
+        <p>內政部出版防疫專書《就位・無畏 內政抗疫 全員並肩》（GPN 1011100277），記錄內政體系兩年抗疫歷程；內政部消防署協助編撰，撰寫消防救護篇章「後送 最刻骨銘心的一段路」，記述第一線消防人員載送 COVID-19 疑似／確診病患之心路與實務。</p>
+        <p><span class="src-note">政府出版品資訊網 GPN 1011100277（出版日期 2022 年 3 月，查閱日 2026.7.6）。</span></p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">3.3</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>消防機關救護勤務安全指導原則</h3></div>
+        <p>核定版發布，建立救護勤務安全規範。</p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">3.17</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>消防機關隨身影像記錄器使用指導原則</h3></div>
+        <p>內政部消防署以消署護字第 1110700070 號函訂定發布《消防機關執勤使用隨身影像記錄器及影音資料保存管理指導原則》，全文 7 點，自即日起生效。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">7.6</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>急救先鋒 APP 推出</h3></div>
+        <p>內政部消防署推出『急救先鋒』召喚民眾 APP，整合 PAD 民眾施救網絡。</p>
+      </div>
+    </article>
+    <article class="event" data-category="train">
+      <div class="event-date">7.21</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>PHTLS 加入救護技術員訓練</h3></div>
+        <p>院前創傷救命術 (Prehospital Trauma Life Support) 正式納入救護技術員訓練課程。</p>
+      </div>
+    </article>
+    <article class="event" data-category="train">
+      <div class="event-date">7.12–9.2</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>EMT-P 危機處理小組 (CIT) 簡式課程</h3></div>
+        <p>因應精神衛生法修法，內政部消防署提前規劃辦理危機處理小組 (CIT) 課程。假本署訓練中心辦理「高級救護技術員年度繼續教育」期間，編排 1 天 8 小時簡式課程，參加人數計 302 名。</p>
+        <p>目的：讓第一線消防同仁先行了解未來與警察、衛生及社工單位如何協作以安全地協助精神健康危機病患，同時與精神醫療衛生系統連結並降低處理事件創傷發生可能性。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">9.2</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>急救先鋒 APP 上架，全面開放下載註冊</h3></div>
+        <p>內政部消防署急救先鋒 APP 於雙商店上架並全面開放下載註冊，將召喚具急救能力民眾協助 OHCA 施救之模式，自地方試辦推向全國。
+          <span class="src-note">內政部消防署公告（民國 111 年 9 月 2 日，各地消防機關轉知）。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">9.4–10</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>111 年救護週 ・「救。要安全」</h3></div>
+        <p>主題 Slogan：<strong>救。要安全 · EMS Safety</strong>。聚焦救護人員職業安全；此理念延伸為 112.6.8 引進「EMS Safety」教材並推動同名運動。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">9.6</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>與林堉璘宏泰公益信託簽署合作交流備忘錄</h3></div>
+        <p>內政部消防署（署長蕭煥章）與公益信託林堉璘宏泰教育文化公益基金（執行長林鴻南）、財團法人林堉璘宏泰教育基金會（董事長王濬智）簽署合作交流備忘錄：延續 107–108 年間捐贈 257 台自動心肺復甦機之初衷，續贊助全國各地消防隊不足之自動心肺復甦機（50 台以內）；並贊助內政部消防署辦理高級救護技術員訓練或策進消防機關（含港務消防隊）醫療指導醫師制度計畫之教育訓練經費，分梯次培育 150 名以內高級救護技術員（EMT-P，實際三年培育 144 名），前述均為無負擔捐贈。</p>
+        <p><span class="src-note">內政部消防署與林堉璘宏泰公益信託／教育基金會《合作交流備忘錄》（民國 111 年 9 月 6 日）。</span></p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">11.11</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>台美民間三方合作備忘錄簽訂</h3></div>
+        <p>啟動台美 TECC 合作之國際合作基礎。</p>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">11.17</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>召開全國版傷票專家會議</h3></div>
+        <p>研議全國統一版本之傷票（檢傷分類卡）規格與使用標準。</p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">12.14</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>精神衛生法總統公布</h3></div>
+        <p>總統令修正公布全文 91 條，為本法 79.12.7 制定後第 5 次修正（全文修正）。除第五章及第 81 條第 3、4 款（行政院會同司法院定自 115.8.1 施行）外，自公布後 2 年（113.12.14）施行。CIT 制度為配合此法所建立的跨機關協作機制。
+          <span class="src-note">全國法規資料庫《精神衛生法》沿革。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════ 民國 112 ═══════════════ -->
+<section class="year-section" id="year-112">
+  <h2 class="year-heading"><span class="roc">民國 112 年</span><span class="ad">2023</span></h2>
+  <div class="events">
+    <article class="event" data-category="program">
+      <div class="event-date">1.12</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>台美 TECC 合作計畫研商會議</h3></div>
+        <p>啟動戰術緊急傷患救護師資與訓練合作計畫。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">2</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>極端災害特殊緊急救護整備暨完善通訊計畫</h3></div>
+        <p>提報草案，因應極端災害救護整備需求。</p>
+      </div>
+    </article>
+    <article class="event" data-category="train">
+      <div class="event-date">4.29</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>成為美國 C-TECC 認可教育夥伴</h3></div>
+        <p>內政部消防署 4.26 去函美國戰術緊急傷患救護委員會（Committee for Tactical Emergency Casualty Care, C-TECC）申請教育夥伴資格及年費減免，4.29 獲執行長 Daneen Matheson 覆函核可，承諾依 TECC 指引教育原則授課，取得認證教育內容（Recognized Educational Content）標章並列名 C-TECC 官網合作夥伴，為台灣<strong>「官方」唯一</strong>獲認可之教育夥伴，確立國內 TECC 訓練的國際認證地位。</p>
+        <p><span class="src-note">C-TECC 執行長 Daneen Matheson 覆函（2023.4.29）暨內政部消防署申請函（2023.4.26）。</span></p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">5.1</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>COVID-19 降類，消防防疫工作總結</h3></div>
+        <p>COVID-19 自 5.1 改列第四類傳染病、中央流行疫情指揮中心解編。三年疫情（109.1.21 我國首例確診至 112 年 4 月底，累計確診 1,023 萬 9,740 人）期間，全國消防機關累計載送疑似／確診病人 17 萬 9,876 人次，內政部消防署以中央業管單位角色統籌指引訂頒、物資補給與量能調度，使消防救護成為防疫國家隊一員。</p>
+        <details>
+          <summary>三年防疫作為擇要</summary>
+          <div class="detail-body">
+            <ul>
+              <li>每日調查消防機關出勤量、物資整備、疫苗接種及快篩情形等合計 29 項資料，以數據驅動即時應變</li>
+              <li>與衛生福利部、國防部合作推動「健康益友」APP（雲端診室）、集檢所民護協力、國軍支援防疫勤務（臺北、新北、臺中、臺南 4 市累計後送 958 人次），有效降載救護車需求、保全救護量能</li>
+              <li>防疫物資中央統籌：109.2.13 起向疾管署申請外科口罩，累計配送 61 梯次共 1,549 萬 9,200 片；N95 口罩及防水隔離衣依「用多少補多少」原則每週申請，累計 70 梯次共 147 萬 2,291 個（件）</li>
+              <li>消防第一線防疫人員列 COVID-19 疫苗優先接種對象，造冊上傳並每日監測接種情形</li>
+              <li>參與各項防疫會議合計 177 場：指揮中心會議 149 次、醫療應變組會議 6 次、內政部應變小組會議 20 次、衛福部醫療應變桌上推演 2 次</li>
+              <li>111 年春節機場專案經醫療應變組會議表達消防機關立場，避免消防救護車直接調度至機場待命，守住社區危急個案之救護戰力</li>
+            </ul>
+          </div>
+        </details>
+        <p><span class="src-note">內政部消防署 COVID-19 防疫工作總結（載送及物資統計截至 112 年 4 月底）。</span></p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">5</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>COVID-19 解封後救護全面優化</h3></div>
+        <p>疫情解封後系統性檢討並優化救護機制。</p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">5.10</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>公共場所必要緊急救護設備管理辦法修正（第 1 次）</h3></div>
+        <p>衛生福利部（衛部醫字第 1121663253 號令）修正發布全文 14 條，並自發布日施行，為本辦法 102 年訂定後第 1 次修正，亦為現行最新修正。
+          <span class="src-note">全國法規資料庫《公共場所必要緊急救護設備管理辦法》沿革。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">5.10</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>精神危機處理小組 (CIT) 推行</h3></div>
+        <p>開始推行 Crisis Intervention Team，提升行為急症處置量能。</p>
+      </div>
+    </article>
+    <article class="event" data-category="train">
+      <div class="event-date">5.11</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>首屆 TECC 課程指導員訓練</h3></div>
+        <p>內政部消防署首度在臺北市政府消防局緊急救護學院辦理 2 梯次戰術緊急傷患救護（Tactical Emergency Patient Care, TECC）課程指導員訓練，建立國內 TECC 種子師資。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">6.8</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>引進「EMS Safety」教材</h3></div>
+        <p>重視職業安全，推動『救。要安全』運動。</p>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">9.5–11</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>112 年救護週 ・「非常救護」</h3></div>
+        <p>主題 Slogan：<strong>非常救護 · EMS Care for all</strong>。強調全民、跨族群、跨情境的救護涵蓋。</p>
+      </div>
+    </article>
+    <article class="event" data-category="org">
+      <div class="event-date">9.21</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-org">組織</span><h3>緊急救護組併入救災救護組</h3></div>
+        <p>內政部消防署組織調整，緊急救護組正式併入救災救護組。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">10.13</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>TEMSIS 資料字典 v2.0 公布</h3></div>
+        <p>內政部消防署公布《緊急救護管理系統資料字典》（TEMSIS Data Dictionary Version 2.0）及修正說明，統一全國救護資料欄位定義，為一站通系統資料整合奠基。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════ 民國 113 ═══════════════ -->
+<section class="year-section" id="year-113">
+  <h2 class="year-heading"><span class="roc">民國 113 年</span><span class="ad">2024</span></h2>
+  <div class="events">
+    <article class="event" data-category="program">
+      <div class="event-date">3.29</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>韌性國家醫療整備計畫（113–116 年）核定</h3></div>
+        <p>行政院以院臺衛字第 1131007042 號函核定「韌性國家醫療整備計畫（113 年至 116 年）」，整備極端事件下的醫療量能。</p>
+        <p><strong>總經費</strong>：9 億 4,945 萬元（含地方配合款）。</p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">5.15</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>救護技術員管理辦法全文修正（第 1 次）</h3></div>
+        <p>衛生福利部（衛部醫字第 1131661269 號令）修正發布全文 19 條，並自 114.1.1 施行，為本辦法 97 年訂定後第 1 次修正，亦為現行最新修正，同步更新各級救護技術員訓練課程基準。
+          <span class="src-note">全國法規資料庫《救護技術員管理辦法》沿革。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="train">
+      <div class="event-date">6.27</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>TECC 訓練手冊新書發表記者會</h3></div>
+        <p>內政部消防署舉辦《戰術緊急傷患救護訓練手冊》新書發表記者會。本手冊遵循美國戰術緊急傷患救護委員會（Committee for TECC）發布之指引，並依最新實證醫學的最佳策略進行更新。</p>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">9.8–14</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>113 年救護週 ・「救感心」</h3></div>
+        <p>主題 Slogan：<strong>救感心 · Healing Hands, Caring Words</strong>。強調救護過程中的同理、溝通與情感支持。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">9</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>林堉璘宏泰基金會贊助「教育訓練品質精進專案」</h3></div>
+        <p>財團法人林堉璘宏泰公益信託及基金會贊助「教育訓練品質精進專案」，計畫在 3 年內（114–116 年）培育 140 位救護教官。</p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">11.12</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>消防法增訂消防人員安全及衛生防護專章三讀</h3></div>
+        <p>立法院三讀通過，將消防人員職業安全衛生防護法制化。總統於 11.29 令修正公布（消防法第 14 次修正），增訂第三章之一章名及第 25-1～25-9 條等條文，行政院定自 114.6.1 施行。
+          <span class="src-note">全國法規資料庫《消防法》沿革。</span>
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════ 民國 114 ═══════════════ -->
+<section class="year-section" id="year-114">
+  <h2 class="year-heading"><span class="roc">民國 114 年</span><span class="ad">2025 ・ 救急三十</span></h2>
+  <div class="events">
+    <article class="event" data-category="program">
+      <div class="event-date">—</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>救災救難一站通開展計畫（114–117 年）</h3></div>
+        <p>承接 110–113 年四年計畫成果，啟動新四年期開展計畫。</p>
+      </div>
+    </article>
+    <article class="event" data-category="train">
+      <div class="event-date">—</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>韌性國家醫療整備計畫 TECC 訓練大規模展開</h3></div>
+        <p>全國 TECC 訓練量能擴展。</p>
+      </div>
+    </article>
+    <article class="event" data-category="train">
+      <div class="event-date">5.20</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>新版救護技術員教科書與單項技術操作手冊發表</h3></div>
+        <p>內政部消防署正式對外發表新版救護技術員教科書及教學用緊急醫療救護單項技術操作手冊。</p>
+        <details>
+          <summary>修訂依據與重點</summary>
+          <div class="detail-body">
+            <ul>
+              <li>依據衛福部 113.5.15 修正、115.1.1 正式施行之「救護技術員管理辦法」為基礎</li>
+              <li>首次整合 EMT-1（初級）與 EMT-2（中級）教材於同一本書</li>
+              <li>全書共 18 章，內容全面更新</li>
+              <li>新增 6 大核心章節：
+                <ol>
+                  <li>緊急醫療救護職業安全</li>
+                  <li>到院前 5 級檢傷概論</li>
+                  <li>長者緊急醫療救護</li>
+                  <li>行為急症</li>
+                  <li>團隊資源管理（TRM）</li>
+                  <li>戰術緊急傷患救護（TECC）</li>
+                </ol>
+              </li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">6.1</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>災害事故調查會設置辦法全案修正施行</h3></div>
+        <p>內政部（台內消字第 1141602384 號令）於 5.29 修正發布全文 18 條（本辦法 109 年訂定後第 1 次修正，亦為現行最新修正），自 6.1 施行。強化災害事故調查制度，為事故安全官制度奠基。
+          <span class="src-note">全國法規資料庫《災害事故調查會設置辦法》沿革。</span>
+        </p>
+      </div>
+    </article>
+    <article class="event" data-category="train">
+      <div class="event-date">6.23</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>第 18 期緊急救護教官班開訓</h3></div>
+        <p>內政部消防署辦理第 18 期緊急救護教官班，承接林堉璘宏泰基金會「教育訓練品質精進專案」(114–116 年培育 140 位教官) 之首期。</p>
+      </div>
+    </article>
+    <article class="event" data-category="law">
+      <div class="event-date">9.12</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-law">法規</span><h3>事故調查分級分層機制指引函頒</h3></div>
+        <p>各級消防機關事故調查程序標準化。</p>
+      </div>
+    </article>
+    <article class="event" data-category="org">
+      <div class="event-date">11.6</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-org">組織</span><h3>事故安全官制度推動</h3></div>
+        <p>建立事故安全官制度，與國際接軌。</p>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">9</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>114 年救護週 ・「救急三十，究極前行」</h3></div>
+        <p>主題 Slogan：<strong>救急三十，究極前行 · 30 Years of EMS. Advancing with Excellence.</strong></p>
+        <p>民國 84 年（1995）緊急救護正式成為消防法定任務，至 114 年（2025）恰滿 30 年。以「救急三十」回顧三十年耕耘歷程，以「究極前行」展現持續精進的決心。</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════ 民國 115 ═══════════════ -->
+<section class="year-section" id="year-115">
+  <h2 class="year-heading"><span class="roc">民國 115 年</span><span class="ad">2026</span></h2>
+  <div class="events">
+    <article class="event" data-category="train">
+      <div class="event-date">5.4</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-train">訓練</span><h3>第 19 期緊急救護教官班開訓</h3></div>
+        <p>內政部消防署辦理第 19 期緊急救護教官班，「教育訓練品質精進專案」次期。</p>
+      </div>
+    </article>
+    <article class="event" data-category="program">
+      <div class="event-date">6.1</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-program">計畫</span><h3>氰化物解毒劑部署機制計畫啟動</h3></div>
+        <p>內政部消防署於 115 年 6 月 1 日以消署救字第 1150600490 號函復財團法人林堉璘宏泰教育基金會，同意受贈專案經費 947 萬元（無附帶負擔捐贈），以三年（115–117 年）採購氰化物專用解毒劑 Hydroxocobalamin 至少 200 劑，部署於全國各直轄市及縣（市）消防局並建立管理運用機制，將火場氰化物中毒之到院前解毒處置推向全國制度化。</p>
+        <details>
+          <summary>計畫要點與案件時序</summary>
+          <div class="detail-body">
+            <ul>
+              <li>基金會 115 年 3 月 25 日 (115) 堉宏教字第 1150325001 號函檢附贊助意向書，主動專案贊助</li>
+              <li>5.19 召開研商會議：確認到院前投藥黃金搶救時間為火場救出後 15 分鐘內；請臺北榮民總醫院毒藥物諮詢中心協助藥證取得與專案進口程序；借鏡新北市既有配置經驗（3 劑，優先適用消防人員）</li>
+              <li>分年項目：第一年部署解毒劑及配套防潮設備並辦理教育訓練；第二年續部署並規劃國際研討會；第三年續部署並辦理成果發表會</li>
+              <li>為 107 年起自動心肺復甦機捐贈（257 台）、111.9.6 合作交流備忘錄後，雙方公私協力之第三波合作</li>
+            </ul>
+          </div>
+        </details>
+        <p><span class="src-note">內政部消防署 115 年 6 月 1 日消署救字第 1150600490 號函、「氰化物解毒劑部署機制計畫」研商會議紀錄（115.5.19）及財團法人林堉璘宏泰教育基金會贊助意向書（115.3.25）。</span></p>
+      </div>
+    </article>
+    <article class="event" data-category="event">
+      <div class="event-date">9.6–12</div>
+      <div class="event-rail"><span class="dot"></span></div>
+      <div class="event-card">
+        <div class="head"><span class="tag tag-event">活動</span><h3>115 年救護週 ・「救在當下」</h3></div>
+        <p>主題 Slogan：<strong>救在當下 · Act Now. Save Lives.</strong>。強調救護行動自事件發生的第一刻便已展開——從民眾、派遣員到第一線救護人員，人人都能在關鍵當下伸出援手。9.9 救護日辦理表揚典禮，頒發 114 年緊急救護有功人員「生命捕手」、「急救精靈」、「接生好手」、「救護之王」等獎項；9.12 適逢世界急救日，指導臺北大眾捷運公司與台灣安妮急救教育協會合辦「閃電 CPR 挑戰」；週間並依「認識救護、救要安全、急救先鋒、珍惜救護、急救宣導」五大主題日進行社群宣導。</p>
+        <p><span class="src-note">內政部消防署《115 年救護週活動執行計畫》。</span></p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<footer>
+  <p><strong>資料來源</strong>　教科書圖 1-2「臺灣緊急醫療救護重要發展紀事」(第 9 頁) ・ 內政部消防署救災救護組《救護大事紀（2021 年起）》 ・ 紀志賢、廖訓禎〈臺灣地區救護技術員執行到院前救護之需求性評估〉《台灣急診醫學會醫誌》2002;4(2):59–70 ・ 內政部消防署與林堉璘宏泰公益信託／教育基金會《合作交流備忘錄》(111.9.6) ・ C-TECC 教育夥伴核可覆函 (2023.4.29) ・ 內政部消防署《115 年救護週活動執行計畫》 ・ 內政部消防署「氰化物解毒劑部署機制計畫」研商會議紀錄 (115.5.19) 暨財團法人林堉璘宏泰教育基金會贊助意向書 (115.3.25) ・ 內政部消防署 COVID-19 相關公文：防疫獎勵要點核定版 (109.6.29)、消署護字第1100700111號三級警戒救護應變指引函 (110.6.1)、歷次紓困特別預算執行情形書面報告 (110.10.1)、獎勵金核發作業原則及發放至111年12月底止函 (111.12.6) ・ 全國法規資料庫（law.moj.gov.tw）各法規沿革（查閱日 2026.7.3）</p>
+  <p>本頁為內部整理參考，事件描述以簡明摘要為主，詳細時序與規模請參照原始文件。</p>
+</footer>
+
+</div>
+
+<script>
+  // ── Counts ─────────────────────────────
+  const events = document.querySelectorAll('.event');
+  const counts = { all: events.length, law: 0, org: 0, incident: 0, program: 0, train: 0, event: 0 };
+  events.forEach(e => { counts[e.dataset.category] = (counts[e.dataset.category] || 0) + 1; });
+  Object.keys(counts).forEach(k => {
+    const el = document.getElementById('count-' + k);
+    if (el) el.textContent = counts[k];
+  });
+
+  // Annotate each event with its year heading text for cross-event search
+  document.querySelectorAll('.year-section').forEach(sec => {
+    const yearText = sec.querySelector('.year-heading')?.textContent.toLowerCase() || '';
+    sec.querySelectorAll('.event').forEach(e => { e.dataset.yearText = yearText; });
+  });
+
+  // ── Filter state ──────────────────────
+  let activeCategory = 'all';
+  const searchInput = document.getElementById('search-input');
+  const searchClear = document.getElementById('search-clear');
+
+  function applyFilters() {
+    const q = searchInput.value.trim().toLowerCase();
+    searchClear.style.display = q ? 'inline-block' : 'none';
+    events.forEach(e => {
+      const matchCat = activeCategory === 'all' || e.dataset.category === activeCategory;
+      const haystack = (e.textContent + ' ' + (e.dataset.yearText || '')).toLowerCase();
+      const matchQ = !q || haystack.includes(q);
+      e.classList.toggle('hidden', !(matchCat && matchQ));
+    });
+    document.querySelectorAll('.year-section').forEach(s => {
+      const hasVisible = Array.from(s.querySelectorAll('.event')).some(e => !e.classList.contains('hidden'));
+      s.classList.toggle('empty', !hasVisible);
+    });
+  }
+
+  // Category chips
+  document.querySelectorAll('.filter-chip[data-category]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      activeCategory = chip.dataset.category;
+      document.querySelectorAll('.filter-chip[data-category]').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      applyFilters();
+    });
+  });
+
+  // Search input
+  searchInput.addEventListener('input', applyFilters);
+  searchClear.addEventListener('click', () => { searchInput.value = ''; applyFilters(); searchInput.focus(); });
+</script>
+</body>
+</html>
