@@ -166,6 +166,22 @@ for f in "${CHANGED[@]}"; do
   verify_page "$f" 20 || FAILED=1
 done
 
+# 卡住時自救：主動要求 GitHub 重新部署一次，再驗證一輪
+# （GitHub Actions 佇列偶爾塞車，例如 2026-07-09；重新觸發通常幾十秒內完成）
+if [ $FAILED -eq 1 ] && command -v gh > /dev/null 2>&1; then
+  echo ""
+  echo "🔁 部署疑似卡在佇列，主動觸發 GitHub Pages 重新部署..."
+  if gh api -X POST repos/PURE-bot-maker/ems-dashboard/pages/builds > /dev/null 2>&1; then
+    sleep 30
+    FAILED=0
+    for f in "${CHANGED[@]}"; do
+      verify_page "$f" 20 || FAILED=1
+    done
+  else
+    echo "    ⚠️  無法透過 gh 觸發（未登入或無權限），跳過自救"
+  fi
+fi
+
 echo ""
 echo "═══════════════════════════════════════════════"
 if [ $FAILED -eq 0 ]; then
