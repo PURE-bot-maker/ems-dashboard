@@ -41,6 +41,38 @@ has_changed() {
   return 1
 }
 
+# ── 線上驗證工具 ──────────────────────────────────
+# GitHub Pages push 後不代表部署成功（部署可能卡在佇列），
+# 所以一律實際抓線上頁面，和本地檔逐位元組比對。
+BASE_URL="https://pure-bot-maker.github.io/ems-dashboard"
+
+url_for() {
+  case "$1" in
+    "index.html")          echo "$BASE_URL/" ;;
+    "ohca/index.html")     echo "$BASE_URL/ohca/" ;;
+    "timeline/index.html") echo "$BASE_URL/timeline/" ;;
+  esac
+}
+
+# verify_page <repo內路徑> <最多檢查次數>（每次間隔 15 秒）
+verify_page() {
+  local f="$1" tries="$2" url tmp i
+  url=$(url_for "$f")
+  tmp=$(mktemp)
+  for (( i=1; i<=tries; i++ )); do
+    if curl -fsSL "${url}?nocache=$(date +%s)" -o "$tmp" 2>/dev/null \
+       && cmp -s "$tmp" "$f"; then
+      rm -f "$tmp"
+      echo "    ✅ $url 線上內容 = 本地最新版"
+      return 0
+    fi
+    [ "$i" -lt "$tries" ] && sleep 15
+  done
+  rm -f "$tmp"
+  echo "    ❌ $url 線上仍是舊內容（已檢查 $tries 次）"
+  return 1
+}
+
 CHANGED=()
 
 # ── 1. 救護儀表板 ─────────────────────────────────
@@ -95,10 +127,24 @@ fi
 # ── 4. Commit + Push（若有變更）───────────────────
 if [ ${#CHANGED[@]} -eq 0 ]; then
   echo ""
+  echo "ℹ️  沒有變更。順便檢查上次部署是否真的上線..."
+  ALL_OK=1
+  for f in "$EMS_DST" "$OHCA_DST" "$TIMELINE_DST"; do
+    verify_page "$f" 1 || ALL_OK=0
+  done
+  echo ""
   echo "═══════════════════════════════════════════════"
-  echo "  ℹ️  沒有變更，無需更新。"
+  if [ $ALL_OK -eq 1 ]; then
+    echo "  ✅ 沒有變更，且線上三頁都是最新版。"
+  else
+    echo "  ❌ 有頁面的線上內容和本地不一致！"
+    echo "     上次的 GitHub Pages 部署可能卡住了。處理方式："
+    echo "     1. 到 https://github.com/PURE-bot-maker/ems-dashboard/actions"
+    echo "        看「pages build and deployment」是否卡在 queued"
+    echo "     2. 或跟 Claude 說：「網頁部署沒成功，幫我檢查」"
+  fi
   echo "═══════════════════════════════════════════════"
-  exit 0
+  [ $ALL_OK -eq 1 ] && exit 0 || exit 1
 fi
 
 echo ""
@@ -112,15 +158,33 @@ echo ""
 echo "🚀 推送到 GitHub"
 git push 2>&1 | tail -5
 
+# ── 5. 驗證線上是否真的更新（最多約 5 分鐘）───────
+echo ""
+echo "⏳ 等待 GitHub Pages 部署並驗證線上內容..."
+FAILED=0
+for f in "${CHANGED[@]}"; do
+  verify_page "$f" 20 || FAILED=1
+done
+
 echo ""
 echo "═══════════════════════════════════════════════"
-echo "  ✅ 更新完成！"
+if [ $FAILED -eq 0 ]; then
+  echo "  ✅ 更新完成，線上內容已驗證為最新版！"
+else
+  echo "  ❌ 已 push 但線上遲遲沒更新——"
+  echo "     GitHub Pages 部署大概卡在佇列（2026-07-09 發生過）。"
+  echo "     處理方式："
+  echo "     1. 等 10 分鐘後再雙擊一次 update.command（會重新檢查）"
+  echo "     2. 到 https://github.com/PURE-bot-maker/ems-dashboard/actions"
+  echo "        看「pages build and deployment」是否卡在 queued"
+  echo "     3. 或跟 Claude 說：「網頁部署沒成功，幫我檢查」"
+fi
 echo ""
 echo "  🔗 線上網址："
 echo "     · 救護儀表板：  https://pure-bot-maker.github.io/ems-dashboard/"
 echo "     · OHCA Dashboard：https://pure-bot-maker.github.io/ems-dashboard/ohca/"
 echo "     · 救護大事紀：  https://pure-bot-maker.github.io/ems-dashboard/timeline/"
 echo ""
-echo "  ⏳ GitHub Pages 約需 1–2 分鐘才會反映新版本，"
-echo "     重新整理瀏覽器時請按 Cmd+Shift+R 強制重新載入。"
+echo "  💡 瀏覽器看到舊版時，按 Cmd+Shift+R 強制重新載入。"
 echo "═══════════════════════════════════════════════"
+exit $FAILED
