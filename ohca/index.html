@@ -154,6 +154,11 @@
  /* y112 year tab */
  .year-tab.y112{border-color:#34d399;color:var(--text-muted);}
  .year-tab.y112.active{background:rgba(52,211,153,0.12);color:#34d399;}
+ /* y111 / y110 year tabs */
+ .year-tab.y111{border-color:#818cf8;color:var(--text-muted);}
+ .year-tab.y111.active{background:rgba(129,140,248,0.12);color:#818cf8;}
+ .year-tab.y110{border-color:#f472b6;color:var(--text-muted);}
+ .year-tab.y110.active{background:rgba(244,114,182,0.12);color:#f472b6;}
  .year-tab.trend{border-color:#7c3aed;color:var(--text-muted);}
  .year-tab.trend.active{background:rgba(124,58,237,0.15);color:#a78bfa;}
  #ohcaContent{transition:opacity 0.3s;}
@@ -176,6 +181,8 @@
  <div class="header-right">
  <div class="year-tabs">
  <span class="year-tabs-label">年份</span>
+ <button class="year-tab y110" onclick="switchYear('110年')">110年 2021</button>
+ <button class="year-tab y111" onclick="switchYear('111年')">111年 2022</button>
  <button class="year-tab y112" onclick="switchYear('112年')">112年 2023</button>
  <button class="year-tab y113" onclick="switchYear('113年')">113年 2024</button>
  <button class="year-tab y114 active" onclick="switchYear('114年')">114年 2025</button>
@@ -343,10 +350,11 @@
  </div>
  </div>
  <div class="note-box">
- <strong>趨勢頁說明：</strong>全國資料涵蓋2015年至2025年（11年）；縣市資料依現有數據呈現。
- 2023年縣市每10萬人口出院數由各縣市康復出院人數÷2023年12月戶籍人口計算。
- 2023年縣市OHCA人次已更新（來源：010300月報），康復出院率可計算；急救成功率（total ROSC）縣市資料未收錄。
- 旁觀者CPR率、PAD使用率、ROSC率：2023–2025年縣市資料均已收錄（來源：消防署月報10983-01-03）。
+ <strong>趨勢頁說明：</strong>全國資料涵蓋2015年至2025年（11年）；縣市資料涵蓋2021年至2025年（5年）。
+ 縣市每10萬人口出院數由各縣市康復出院人數÷該年12月戶籍人口計算。
+ 旁觀者CPR率、PAD使用率、ROSC率：2021–2025年縣市資料均已收錄（來源：消防署月報10983-01-03；2021年為「110年表3」舊式格式）。
+ 急救成功率、康復出院率：2021–2025年縣市資料均已收錄；2021年之分母採「110年急救成功人數統計一覽表」（屏東縣 945、澎湖 102、連江 3，與表3 略有出入）。
+ 全國每10萬人口出院數2021年起可計算（2021年3.5、2022年4.0）。
  </div>
 </div>
 
@@ -430,7 +438,57 @@ const ohcaDataAll={
  '嘉義市':{ohca:261,bystander_cpr:161,pad:4,rosc:13},
  '金門縣':{ohca:88,bystander_cpr:55,pad:3,rosc:4},
  '連江縣':{ohca:9,bystander_cpr:4,pad:1,rosc:1},
- }
+ },
+ '111年':{
+ '全國':{ohca:19370,bystander_cpr:11118,pad:966,rosc:1366},
+ '新北市':{ohca:2405,bystander_cpr:1367,pad:61,rosc:217},
+ '臺北市':{ohca:1914,bystander_cpr:1021,pad:91,rosc:160},
+ '桃園市':{ohca:1766,bystander_cpr:1313,pad:111,rosc:198},
+ '臺中市':{ohca:1944,bystander_cpr:1499,pad:93,rosc:148},
+ '臺南市':{ohca:1588,bystander_cpr:830,pad:55,rosc:133},
+ '高雄市':{ohca:1898,bystander_cpr:967,pad:69,rosc:69},
+ '宜蘭縣':{ohca:459,bystander_cpr:230,pad:29,rosc:13},
+ '新竹縣':{ohca:550,bystander_cpr:401,pad:37,rosc:45},
+ '苗栗縣':{ohca:569,bystander_cpr:271,pad:60,rosc:10},
+ '彰化縣':{ohca:1378,bystander_cpr:617,pad:19,rosc:30},
+ '南投縣':{ohca:535,bystander_cpr:302,pad:79,rosc:20},
+ '雲林縣':{ohca:679,bystander_cpr:370,pad:6,rosc:26},
+ '嘉義縣':{ohca:527,bystander_cpr:258,pad:45,rosc:12},
+ '屏東縣':{ohca:1069,bystander_cpr:508,pad:116,rosc:33},
+ '臺東縣':{ohca:245,bystander_cpr:163,pad:9,rosc:40},
+ '花蓮縣':{ohca:575,bystander_cpr:309,pad:15,rosc:156},
+ '澎湖縣':{ohca:103,bystander_cpr:41,pad:9,rosc:4},
+ '基隆市':{ohca:382,bystander_cpr:167,pad:14,rosc:3},
+ '新竹市':{ohca:385,bystander_cpr:247,pad:27,rosc:25},
+ '嘉義市':{ohca:288,bystander_cpr:174,pad:15,rosc:17},
+ '金門縣':{ohca:79,bystander_cpr:56,pad:2,rosc:3},
+ '連江縣':{ohca:6,bystander_cpr:1,pad:2,rosc:1},
+ },
+ '110年':{
+ '全國':{ohca:18813,bystander_cpr:10363,pad:657,rosc:1146},
+ '新北市':{ohca:2280,bystander_cpr:1198,pad:44,rosc:203},
+ '臺北市':{ohca:1822,bystander_cpr:1124,pad:82,rosc:129},
+ '桃園市':{ohca:1766,bystander_cpr:1260,pad:81,rosc:182},
+ '臺中市':{ohca:2236,bystander_cpr:1425,pad:55,rosc:96},
+ '臺南市':{ohca:1437,bystander_cpr:676,pad:72,rosc:113},
+ '高雄市':{ohca:2042,bystander_cpr:896,pad:59,rosc:61},
+ '宜蘭縣':{ohca:517,bystander_cpr:213,pad:10,rosc:19},
+ '新竹縣':{ohca:486,bystander_cpr:335,pad:44,rosc:34},
+ '苗栗縣':{ohca:485,bystander_cpr:207,pad:14,rosc:10},
+ '彰化縣':{ohca:1225,bystander_cpr:546,pad:14,rosc:33},
+ '南投縣':{ohca:508,bystander_cpr:244,pad:25,rosc:20},
+ '雲林縣':{ohca:664,bystander_cpr:422,pad:4,rosc:15},
+ '嘉義縣':{ohca:508,bystander_cpr:269,pad:14,rosc:9},
+ '屏東縣':{ohca:1029,bystander_cpr:518,pad:75,rosc:22},
+ '臺東縣':{ohca:268,bystander_cpr:187,pad:5,rosc:37},
+ '花蓮縣':{ohca:435,bystander_cpr:233,pad:23,rosc:108},
+ '澎湖縣':{ohca:101,bystander_cpr:35,pad:1,rosc:2},
+ '基隆市':{ohca:333,bystander_cpr:145,pad:7,rosc:4},
+ '新竹市':{ohca:312,bystander_cpr:217,pad:14,rosc:30},
+ '嘉義市':{ohca:252,bystander_cpr:163,pad:8,rosc:15},
+ '金門縣':{ohca:56,bystander_cpr:35,pad:0,rosc:1},
+ '連江縣':{ohca:4,bystander_cpr:2,pad:0,rosc:0},
+ },
 };
 
 const rescueDataAll={
@@ -508,7 +566,57 @@ const rescueDataAll={
  '嘉義市':{ohca:261,total_success:79,discharge:20},
  '金門縣':{ohca:88,total_success:21,discharge:4},
  '連江縣':{ohca:9,total_success:2,discharge:1},
- }
+ },
+ '111年':{
+ '全國':{ohca:19370,total_success:5300,discharge:940},
+ '新北市':{ohca:2405,total_success:912,discharge:163},
+ '臺北市':{ohca:1914,total_success:487,discharge:111},
+ '桃園市':{ohca:1766,total_success:560,discharge:117},
+ '臺中市':{ohca:1944,total_success:639,discharge:120},
+ '臺南市':{ohca:1588,total_success:508,discharge:101},
+ '高雄市':{ohca:1898,total_success:586,discharge:135},
+ '宜蘭縣':{ohca:459,total_success:96,discharge:6},
+ '新竹縣':{ohca:550,total_success:148,discharge:18},
+ '苗栗縣':{ohca:569,total_success:105,discharge:6},
+ '彰化縣':{ohca:1378,total_success:346,discharge:33},
+ '南投縣':{ohca:535,total_success:97,discharge:9},
+ '雲林縣':{ohca:679,total_success:136,discharge:14},
+ '嘉義縣':{ohca:527,total_success:99,discharge:13},
+ '屏東縣':{ohca:1069,total_success:137,discharge:10},
+ '臺東縣':{ohca:245,total_success:75,discharge:15},
+ '花蓮縣':{ohca:575,total_success:156,discharge:16},
+ '澎湖縣':{ohca:103,total_success:20,discharge:2},
+ '基隆市':{ohca:382,total_success:55,discharge:6},
+ '新竹市':{ohca:385,total_success:114,discharge:22},
+ '嘉義市':{ohca:288,total_success:63,discharge:17},
+ '金門縣':{ohca:79,total_success:6,discharge:4},
+ '連江縣':{ohca:6,total_success:0,discharge:0},
+ },
+ '110年':{
+ '全國':{ohca:18813,total_success:4947,discharge:823},
+ '新北市':{ohca:2280,total_success:844,discharge:166},
+ '臺北市':{ohca:1822,total_success:471,discharge:116},
+ '桃園市':{ohca:1766,total_success:530,discharge:110},
+ '臺中市':{ohca:2236,total_success:574,discharge:97},
+ '臺南市':{ohca:1437,total_success:458,discharge:87},
+ '高雄市':{ohca:2042,total_success:588,discharge:54},
+ '宜蘭縣':{ohca:517,total_success:112,discharge:24},
+ '新竹縣':{ohca:486,total_success:127,discharge:18},
+ '苗栗縣':{ohca:485,total_success:84,discharge:5},
+ '彰化縣':{ohca:1225,total_success:252,discharge:34},
+ '南投縣':{ohca:508,total_success:74,discharge:6},
+ '雲林縣':{ohca:664,total_success:140,discharge:8},
+ '嘉義縣':{ohca:508,total_success:97,discharge:6},
+ '屏東縣':{ohca:945,total_success:141,discharge:1},
+ '臺東縣':{ohca:268,total_success:90,discharge:12},
+ '花蓮縣':{ohca:435,total_success:108,discharge:21},
+ '澎湖縣':{ohca:102,total_success:13,discharge:3},
+ '基隆市':{ohca:333,total_success:49,discharge:12},
+ '新竹市':{ohca:312,total_success:98,discharge:25},
+ '嘉義市':{ohca:252,total_success:76,discharge:14},
+ '金門縣':{ohca:56,total_success:11,discharge:1},
+ '連江縣':{ohca:3,total_success:0,discharge:0},
+ },
 };
 
 const populationAll={
@@ -535,7 +643,23 @@ const populationAll={
  '雲林縣':659468,'嘉義縣':484560,'屏東縣':794997,'臺東縣':211544,
  '花蓮縣':317489,'澎湖縣':107739,'基隆市':362255,'新竹市':456475,
  '嘉義市':263584,'金門縣':144149,'連江縣':14039,
- }
+ },
+ '111年':{
+ '全國':23264640,'新北市':3995551,'臺北市':2480681,'桃園市':2281464,
+ '臺中市':2814459,'臺南市':1852997,'高雄市':2728137,'宜蘭縣':449062,
+ '新竹縣':580503,'苗栗縣':535132,'彰化縣':1245239,'南投縣':479595,
+ '雲林縣':664092,'嘉義縣':488158,'屏東縣':798703,'臺東縣':212551,
+ '花蓮縣':318892,'澎湖縣':107223,'基隆市':361526,'新竹市':452473,
+ '嘉義市':262924,'金門縣':141295,'連江縣':13983,
+ },
+ '110年':{
+ '全國':23375314,'新北市':4008113,'臺北市':2524393,'桃園市':2272391,
+ '臺中市':2813490,'臺南市':1862059,'高雄市':2744691,'宜蘭縣':450692,
+ '新竹縣':575580,'苗栗縣':538178,'彰化縣':1255330,'南投縣':484897,
+ '雲林縣':670132,'嘉義縣':493316,'屏東縣':804440,'臺東縣':213386,
+ '花蓮縣':321358,'澎湖縣':106340,'基隆市':363977,'新竹市':452640,
+ '嘉義市':264727,'金門縣':141539,'連江縣':13645,
+ },
 };
 
 const locationDataAll={
@@ -613,7 +737,57 @@ const locationDataAll={
  '嘉義市':{住宅:189,工廠工作:5,運動中心:0,街道公路:16,公共建築:5,療養院:6,教育學校:0,捷運站:0,診所護理之家:11,其他:29,不清楚:0},
  '金門縣':{住宅:60,工廠工作:2,運動中心:0,街道公路:9,公共建築:1,療養院:5,教育學校:1,捷運站:0,診所護理之家:3,其他:7,不清楚:0},
  '連江縣':{住宅:3,工廠工作:1,運動中心:0,街道公路:1,公共建築:2,療養院:1,教育學校:0,捷運站:1,診所護理之家:0,其他:0,不清楚:0},
- }
+ },
+ '111年':{
+ '全國':{住宅:12777,工廠工作:752,運動中心:52,街道公路:2295,公共建築:165,療養院:616,教育學校:73,捷運站:58,診所護理之家:817,其他:1726,不清楚:33},
+ '新北市':{住宅:1480,工廠工作:104,運動中心:13,街道公路:310,公共建築:28,療養院:111,教育學校:9,捷運站:14,診所護理之家:34,其他:302,不清楚:0},
+ '臺北市':{住宅:1310,工廠工作:57,運動中心:12,街道公路:213,公共建築:29,療養院:68,教育學校:15,捷運站:14,診所護理之家:6,其他:188,不清楚:2},
+ '桃園市':{住宅:1193,工廠工作:86,運動中心:4,街道公路:198,公共建築:22,療養院:48,教育學校:5,捷運站:5,診所護理之家:84,其他:117,不清楚:4},
+ '臺中市':{住宅:1419,工廠工作:83,運動中心:6,街道公路:152,公共建築:2,療養院:46,教育學校:7,捷運站:0,診所護理之家:93,其他:127,不清楚:9},
+ '臺南市':{住宅:939,工廠工作:85,運動中心:5,街道公路:234,公共建築:15,療養院:43,教育學校:7,捷運站:6,診所護理之家:79,其他:166,不清楚:9},
+ '高雄市':{住宅:1241,工廠工作:87,運動中心:4,街道公路:257,公共建築:13,療養院:31,教育學校:11,捷運站:8,診所護理之家:86,其他:156,不清楚:3},
+ '宜蘭縣':{住宅:307,工廠工作:9,運動中心:1,街道公路:46,公共建築:4,療養院:15,教育學校:1,捷運站:1,診所護理之家:20,其他:55,不清楚:0},
+ '新竹縣':{住宅:357,工廠工作:19,運動中心:2,街道公路:87,公共建築:2,療養院:10,教育學校:2,捷運站:2,診所護理之家:31,其他:35,不清楚:3},
+ '苗栗縣':{住宅:370,工廠工作:28,運動中心:0,街道公路:71,公共建築:2,療養院:15,教育學校:0,捷運站:1,診所護理之家:30,其他:52,不清楚:0},
+ '彰化縣':{住宅:885,工廠工作:50,運動中心:2,街道公路:166,公共建築:8,療養院:62,教育學校:1,捷運站:1,診所護理之家:126,其他:77,不清楚:0},
+ '南投縣':{住宅:387,工廠工作:10,運動中心:0,街道公路:47,公共建築:4,療養院:14,教育學校:2,捷運站:0,診所護理之家:19,其他:52,不清楚:0},
+ '雲林縣':{住宅:425,工廠工作:18,運動中心:0,街道公路:118,公共建築:2,療養院:23,教育學校:2,捷運站:0,診所護理之家:31,其他:60,不清楚:0},
+ '嘉義縣':{住宅:331,工廠工作:19,運動中心:0,街道公路:86,公共建築:2,療養院:8,教育學校:2,捷運站:0,診所護理之家:16,其他:62,不清楚:1},
+ '屏東縣':{住宅:688,工廠工作:35,運動中心:0,街道公路:110,公共建築:10,療養院:71,教育學校:0,捷運站:1,診所護理之家:65,其他:84,不清楚:0},
+ '臺東縣':{住宅:137,工廠工作:8,運動中心:2,街道公路:50,公共建築:5,療養院:5,教育學校:0,捷運站:0,診所護理之家:2,其他:37,不清楚:0},
+ '花蓮縣':{住宅:400,工廠工作:14,運動中心:1,街道公路:64,公共建築:6,療養院:17,教育學校:3,捷運站:0,診所護理之家:19,其他:49,不清楚:2},
+ '澎湖縣':{住宅:70,工廠工作:1,運動中心:0,街道公路:5,公共建築:0,療養院:4,教育學校:0,捷運站:1,診所護理之家:5,其他:17,不清楚:0},
+ '基隆市':{住宅:276,工廠工作:6,運動中心:0,街道公路:31,公共建築:3,療養院:11,教育學校:1,捷運站:3,診所護理之家:25,其他:26,不清楚:0},
+ '新竹市':{住宅:283,工廠工作:12,運動中心:0,街道公路:16,公共建築:3,療養院:7,教育學校:3,捷運站:1,診所護理之家:24,其他:36,不清楚:0},
+ '嘉義市':{住宅:214,工廠工作:3,運動中心:0,街道公路:26,公共建築:3,療養院:5,教育學校:2,捷運站:0,診所護理之家:21,其他:14,不清楚:0},
+ '金門縣':{住宅:61,工廠工作:4,運動中心:0,街道公路:6,公共建築:2,療養院:1,教育學校:0,捷運站:0,診所護理之家:1,其他:4,不清楚:0},
+ '連江縣':{住宅:2,工廠工作:2,運動中心:0,街道公路:0,公共建築:0,療養院:1,教育學校:0,捷運站:0,診所護理之家:0,其他:0,不清楚:0},
+ },
+ '110年':{
+ '全國':{住宅:12702,工廠工作:753,運動中心:48,街道公路:2204,公共建築:186,療養院:415,教育學校:58,捷運站:56,診所護理之家:702,其他:1621,不清楚:56},
+ '新北市':{住宅:1422,工廠工作:99,運動中心:11,街道公路:300,公共建築:24,療養院:81,教育學校:5,捷運站:13,診所護理之家:37,其他:288,不清楚:0},
+ '臺北市':{住宅:1283,工廠工作:55,運動中心:9,街道公路:189,公共建築:37,療養院:67,教育學校:14,捷運站:11,診所護理之家:1,其他:155,不清楚:1},
+ '桃園市':{住宅:1226,工廠工作:90,運動中心:5,街道公路:209,公共建築:24,療養院:34,教育學校:5,捷運站:3,診所護理之家:76,其他:89,不清楚:5},
+ '臺中市':{住宅:1623,工廠工作:90,運動中心:2,街道公路:217,公共建築:17,療養院:15,教育學校:5,捷運站:4,診所護理之家:121,其他:142,不清楚:0},
+ '臺南市':{住宅:909,工廠工作:75,運動中心:3,街道公路:175,公共建築:9,療養院:26,教育學校:3,捷運站:2,診所護理之家:65,其他:136,不清楚:34},
+ '高雄市':{住宅:1355,工廠工作:86,運動中心:2,街道公路:263,公共建築:23,療養院:26,教育學校:7,捷運站:7,診所護理之家:85,其他:187,不清楚:1},
+ '宜蘭縣':{住宅:379,工廠工作:11,運動中心:0,街道公路:54,公共建築:2,療養院:10,教育學校:1,捷運站:0,診所護理之家:11,其他:46,不清楚:3},
+ '新竹縣':{住宅:305,工廠工作:37,運動中心:4,街道公路:81,公共建築:7,療養院:9,教育學校:1,捷運站:2,診所護理之家:13,其他:25,不清楚:2},
+ '苗栗縣':{住宅:327,工廠工作:12,運動中心:1,街道公路:66,公共建築:6,療養院:6,教育學校:2,捷運站:1,診所護理之家:12,其他:50,不清楚:2},
+ '彰化縣':{住宅:843,工廠工作:49,運動中心:3,街道公路:132,公共建築:9,療養院:42,教育學校:3,捷運站:0,診所護理之家:71,其他:73,不清楚:0},
+ '南投縣':{住宅:374,工廠工作:13,運動中心:1,街道公路:55,公共建築:7,療養院:8,教育學校:0,捷運站:0,診所護理之家:16,其他:31,不清楚:3},
+ '雲林縣':{住宅:415,工廠工作:18,運動中心:1,街道公路:100,公共建築:1,療養院:6,教育學校:3,捷運站:0,診所護理之家:43,其他:77,不清楚:0},
+ '嘉義縣':{住宅:342,工廠工作:12,運動中心:0,街道公路:64,公共建築:2,療養院:4,教育學校:1,捷運站:2,診所護理之家:15,其他:65,不清楚:1},
+ '屏東縣':{住宅:692,工廠工作:44,運動中心:2,街道公路:116,公共建築:3,療養院:34,教育學校:2,捷運站:1,診所護理之家:48,其他:77,不清楚:2},
+ '臺東縣':{住宅:168,工廠工作:16,運動中心:1,街道公路:32,公共建築:2,療養院:8,教育學校:0,捷運站:3,診所護理之家:5,其他:26,不清楚:1},
+ '花蓮縣':{住宅:274,工廠工作:9,運動中心:1,街道公路:64,公共建築:4,療養院:21,教育學校:2,捷運站:4,診所護理之家:20,其他:35,不清楚:1},
+ '澎湖縣':{住宅:68,工廠工作:0,運動中心:0,街道公路:9,公共建築:2,療養院:2,教育學校:0,捷運站:0,診所護理之家:4,其他:16,不清楚:0},
+ '基隆市':{住宅:239,工廠工作:7,運動中心:0,街道公路:35,公共建築:5,療養院:5,教育學校:0,捷運站:2,診所護理之家:20,其他:20,不清楚:0},
+ '新竹市':{住宅:223,工廠工作:3,運動中心:2,街道公路:17,公共建築:1,療養院:6,教育學校:2,捷運站:1,診所護理之家:21,其他:36,不清楚:0},
+ '嘉義市':{住宅:182,工廠工作:8,運動中心:0,街道公路:22,公共建築:1,療養院:2,教育學校:2,捷運站:0,診所護理之家:17,其他:18,不清楚:0},
+ '金門縣':{住宅:44,工廠工作:1,運動中心:0,街道公路:2,公共建築:0,療養院:2,教育學校:0,捷運站:0,診所護理之家:1,其他:6,不清楚:0},
+ '連江縣':{住宅:3,工廠工作:1,運動中心:0,街道公路:0,公共建築:0,療養院:1,教育學校:0,捷運站:0,診所護理之家:0,其他:2,不清楚:0},
+ },
 };
 
 const monthlyData={
@@ -677,6 +851,8 @@ const utsteinAll={
  '連江縣':null,
  },
  '112年':null,
+ '111年':null,
+ '110年':null,
 };
 // 便利存取器：取得當前年度的 Utstein 資料 dict（若無資料則回傳 null）
 function getUtsteinYearData(){return utsteinAll[currentYear]||null;}
@@ -688,7 +864,7 @@ const trendNational={
  ohca:[20024,20530,20079,20201,20003,19313,18813,19370,18654,18455,18275],
  success_rate:[20.7,21.3,21.3,22.9,24.0,24.7,26.3,27.4,32.2,34.1,36.9],
  discharge_rate:[2.3,2.6,2.9,3.1,3.7,3.9,4.4,4.9,6.6,6.8,7.6],
- per_capita:[null,null,null,null,null,null,null,null,5.3,5.3,5.9],
+ per_capita:[null,null,null,null,null,null,3.5,4.0,5.3,5.3,5.9],
 };
 
 // ===== 民國年→西元年顯示輔助 =====
@@ -822,7 +998,7 @@ function switchYear(year){
  currentPage='main';
  currentYear=year;
  document.querySelectorAll('.year-tab').forEach(t=>t.classList.remove('active'));
- const cls={'112年':'y112','113年':'y113','114年':'y114'}[year];
+ const cls={'110年':'y110','111年':'y111','112年':'y112','113年':'y113','114年':'y114'}[year];
  document.querySelector('.year-tab.'+cls).classList.add('active');
  document.getElementById('mainContent').style.display='';
  document.getElementById('trendContent').style.display='none';
@@ -833,14 +1009,18 @@ function switchYear(year){
  const subtitles={
  '114年':'2025年1月至12月 ‧ 到院前心肺功能停止傷病患統計',
  '113年':'2024年1月至12月 ‧ 到院前心肺功能停止傷病患統計',
- '112年':'2023年1月至12月 ‧ 到院前心肺功能停止傷病患統計（各縣市急救成功率未提供）',
+ '112年':'2023年1月至12月 ‧ 到院前心肺功能停止傷病患統計',
+ '111年':'2022年1月至12月 ‧ 到院前心肺功能停止傷病患統計',
+ '110年':'2021年1月至12月 ‧ 到院前心肺功能停止傷病患統計',
  };
  document.getElementById('yearSubtitle').textContent=subtitles[year]||'';
 
  const bannerMsgs={
  '113年':'<strong>2024年資料：</strong>旁觀者CPR率、PAD使用率、ROSC率及事故地點資料現已更新（來源：消防署月報表10983-01-03）。各縣市急救成功率（ROSC）、康復出院率及OHCA人次完整。Utstein 存活率為 2024 年原始資料（全 22 縣市，連江縣目擊可電擊心律為 0）。',
- '112年':'<strong>2023年資料：</strong>旁觀者CPR率、PAD使用率、ROSC率及事故地點資料現已更新。各縣市康復出院率使用OHCA人次為分母；急救成功率（到院前ROSC÷OHCA）以縣市資料呈現。<strong>Utstein 存活率：2023 年無資料（留白）。</strong>',
+ '112年':'<strong>2023年資料：</strong>旁觀者CPR率、PAD使用率、ROSC率及事故地點資料完整（來源：消防署月報表10983-01-03）。各縣市急救成功人數與康復出院人數來源為「112年全年救護統計報表（表1）」，急救成功人數為 CPR、AED shock＆CPR、ACLS 三項加總，非到院前ROSC。全國列採年報值（急救成功 6,010／康復出院 1,235），表1 各縣加總為 5,996／1,234，差異來自港務消防大隊。<strong>Utstein 存活率：2023 年無資料（留白）。</strong>',
  '114年':'<strong>2025年資料：</strong>旁觀者CPR率、PAD使用率、ROSC率、事故地點及月報資料完整。<strong>Utstein 存活率：2025 年全 22 縣市資料已收錄（全國 631/2262 = 27.9%）。</strong>',
+ '111年':'<strong>2022年資料：</strong>旁觀者CPR率、PAD使用率、ROSC率及事故地點資料完整（來源：消防署月報表10983-01-03）。各縣市急救成功率、康復出院率來源為「111年急救成功人數統計表」（2023-05-04修正版）；該表縣市加總之急救成功人數為 5,345，與年報全國值 5,300 有 45 人次落差，全國列採年報值。<strong>Utstein 存活率：2022 年無資料（留白）。</strong>',
+ '110年':'<strong>2021年資料：</strong>旁觀者CPR率、PAD使用率、ROSC率及事故地點資料完整（來源：110年表3，舊式欄位格式，無「非EMS／EMS目擊」分欄）。各縣市急救成功率、康復出院率來源為「110年緊急救護無生命徵象傷病患急救成功人數統計一覽表」；該表屏東縣母數為 945（表3 為 1,029），澎湖 102（101）、連江 3（4），故成功率／出院率之分母採該表值。全國列採年報值（18,813／4,947／823）。<strong>Utstein 存活率：2021 年無資料（留白）。</strong>',
  };
  const banner=document.getElementById('yearBanner');
  if(bannerMsgs[year]){
@@ -1235,7 +1415,7 @@ function showTrend(){
  document.querySelector('.year-tab.trend').classList.add('active');
  document.getElementById('mainContent').style.display='none';
  document.getElementById('trendContent').style.display='';
- document.getElementById('yearSubtitle').textContent='各縣市年度指標趨勢（2015–2025年）';
+ document.getElementById('yearSubtitle').textContent='各縣市年度指標趨勢（全國 2015–2025年 ‧ 縣市 2021–2025年）';
  document.getElementById('yearBanner').classList.remove('show');
  // 趨勢頁隱藏「全部直轄市」「全部縣市」群組按鈕（趨勢頁不支援群組聚合）
  document.getElementById('btnGroupMetro').style.display='none';
@@ -1265,8 +1445,8 @@ function renderTrendCharts(region){
  const pcVals  = pcStart >= 0 ? trendNational.per_capita.slice(pcStart)   : trendNational.per_capita;
  renderTrendPerCapita(pcYrs, pcVals, true);
  } else {
- // County: build 2023–2025 data
- const yrs=['112年','113年','114年'];
+ // County: build 2021–2025 data
+ const yrs=['110年','111年','112年','113年','114年'];
  const ohcaVals=yrs.map(y=>{const d=ohcaDataAll[y];return d&&d[region]?d[region].ohca:null;});
  const srVals=yrs.map(y=>{
  const rd=rescueDataAll[y];const od=ohcaDataAll[y];
