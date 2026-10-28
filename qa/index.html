@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-title" content="QA快答">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>立法院QA快答卡</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* 版面：頂部固定大字搜尋列＋主題鈕；下方單欄題卡，搜尋時直接展開答案。為老花眼設計：字大、行距寬、高對比、點按區至少 56px。 */
+:root {
+  --bg: #F3F5F7;
+  --card: #FFFFFF;
+  --fg: #0D1520;
+  --muted: #47515E;
+  --line: #CDD3DA;
+  --accent: #A3171C;      /* 消防紅，只用在題號與目前主題 */
+  --accent-ink: #FFFFFF;
+  --chip: #E3E7EC;
+  --hit: #FFE58A;
+  --font: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  --scale: 1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1217; --card: #181E26; --fg: #F2F4F7; --muted: #B4BDC8; --line: #2E3843;
+    --accent: #FF7A70; --accent-ink: #1A0606; --chip: #252E39; --hit: #6B5300; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1217; --card: #181E26; --fg: #F2F4F7; --muted: #B4BDC8; --line: #2E3843;
+  --accent: #FF7A70; --accent-ink: #1A0606; --chip: #252E39; --hit: #6B5300; color-scheme: dark;
+}
+html { font-size: calc(20px * var(--scale)); -webkit-text-size-adjust: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 1rem; line-height: 1.6; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 10px; border-bottom: 1px solid var(--line);
+  display: grid; gap: 10px;
+}
+.row { display: flex; gap: 8px; align-items: center; }
+.search { position: relative; flex: 1; min-width: 0; }
+.search input {
+  width: 100%; box-sizing: border-box; height: 3rem; font: inherit; font-size: 1.1rem; color: var(--fg);
+  background: var(--card); border: 2px solid var(--line); border-radius: 12px; padding: 0 2.6rem 0 0.8rem;
+}
+.search input:focus { outline: none; border-color: var(--accent); }
+.search button {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 2.4rem; height: 2.4rem;
+  border: 0; background: transparent; color: var(--muted); font-size: 1.4rem; border-radius: 8px;
+}
+.size { display: flex; gap: 6px; flex: none; }
+.size button, .chip {
+  font: inherit; color: var(--fg); background: var(--chip); border: 0; border-radius: 10px; cursor: pointer;
+}
+.size button { min-width: 2.8rem; height: 3rem; font-weight: 700; font-size: 1rem; }
+button:focus-visible, .chip:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.ver { font-size: 0.8rem; color: var(--muted); }
+.ver b { color: var(--fg); }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; min-height: 2.6rem; padding: 0 0.9rem; font-size: 0.9rem; white-space: nowrap; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+
+main {
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 14px 48px; display: grid; gap: 12px; max-width: 46rem; margin: 0 auto;
+}
+.status { font-size: 0.9rem; color: var(--muted); }
+.group-h { font-size: 0.85rem; font-weight: 700; color: var(--muted); letter-spacing: 0.08em; margin-top: 10px; }
+
+.q { background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+.q summary { list-style: none; cursor: pointer; padding: 0.8rem 0.9rem; display: grid; grid-template-columns: auto 1fr; gap: 0.6rem; align-items: baseline; min-height: 56px; box-sizing: border-box; }
+.q summary::-webkit-details-marker { display: none; }
+.qid { font-weight: 800; color: var(--accent); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.qt { font-weight: 700; font-size: 1.05rem; line-height: 1.45; min-width: 0; text-wrap: pretty; }
+.ans { padding: 0 0.9rem 0.9rem; display: grid; gap: 0.7rem; }
+.ans ol { margin: 0; padding: 0; list-style: none; counter-reset: p; display: grid; gap: 0.7rem; }
+.ans li { counter-increment: p; display: grid; grid-template-columns: 1.6rem 1fr; gap: 0.3rem; font-size: 1.15rem; line-height: 1.65; }
+.ans li::before { content: counter(p) "."; font-weight: 800; color: var(--accent); }
+.src { border-top: 1px solid var(--line); padding-top: 0.6rem; font-size: 0.85rem; color: var(--muted); display: grid; gap: 0.2rem; }
+.src span { user-select: text; -webkit-user-select: text; }
+mark { background: var(--hit); color: inherit; border-radius: 3px; padding: 0 1px; }
+.empty { background: var(--card); border: 2px dashed var(--line); border-radius: 14px; padding: 1rem; font-size: 1.05rem; }
+.empty b { color: var(--accent); }
+@media (prefers-reduced-motion: no-preference) { .q[open] .ans { animation: in .15s ease-out; } @keyframes in { from { opacity: .4 } } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="row">
+    <div class="search">
+      <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="打關鍵字，如：消防衣、退避權" aria-label="搜尋 QA">
+      <button id="clear" type="button" aria-label="清除" hidden>×</button>
+    </div>
+    <div class="size" role="group" aria-label="字級">
+      <button id="smaller" type="button" aria-label="字變小">A−</button>
+      <button id="bigger" type="button" aria-label="字變大">A＋</button>
+    </div>
+  </div>
+  <div class="chips" id="chips" role="toolbar" aria-label="主題"></div>
+  <div class="ver" id="ver"></div>
+</header>
+<main id="list" aria-live="polite"></main>
+
+<script>
+const DATA = {"meta": {"updated": "115-10-20（2026-10-20）", "received": "2026-10-28", "session": "第11屆第6會期"}, "groups": ["水域救援", "山域救援", "化災・核災・新能源", "無人機・機器人・科技救災", "裝備・車輛", "消防三權・救災安全・事故調查", "勤務・人力・回歸專業", "緊急救護・醫療整備", "預算・宣導"], "items": [{"id": "Q01", "title": "針對台灣沒有專門激流救援隊這個問題，消防署要如何加強消防員在激流救援的能力，有何因應對策，以及平時是如何訓練的?", "group": "水域救援", "kw": "激流救援, 水域, 濁水溪, 急流救生, 事故安全官", "pts": ["專業分工＋補充人力，減輕基層非核心勤務（捕蜂捉蛇回歸農政、安檢數位化）。", "「中央培育種子、地方擴大訓練」：引進 NFPA 1006 急流救生教官，辦 IRB 與急流救援進階訓練。", "落實「主要救援、下游戒護、岸際支援」三層安全防線，並依消防法落實風險評估與退避權。", "協調運動部全民運動署、交通部觀光署加強民眾水域安全宣導。"], "updated": "115-10-20", "contact": "蕭專員清憶"}, {"id": "Q08", "title": "水域活動安全有何管理機制？本署的權責事項與作為？", "group": "水域救援", "kw": "水域活動, 防溺, 水域管理, 權責", "pts": ["水域活動管理屬運動部全民運動署、教育部國教署、交通部觀光署與地方政府。", "本署函發「加強水域救援指導計畫」，提升消防人員水域救援能力。", "114.9.9 函發高風險水域救援演練計畫：盤點轄內高風險水域並擇點演練。", "協調媒體刊登防溺常識。"], "updated": "115-10-20", "contact": "蕭專員清憶"}, {"id": "Q43", "title": "水域活動安全有何管理機制？本部消防署的權責事項與作為？（時事）", "group": "水域救援", "kw": "水域活動, 防溺, 水域管理, 權責, 時事", "pts": ["水域活動管理屬運動部全民運動署、教育部國教署、交通部觀光署與地方政府。", "本署函發「加強水域救援指導計畫」，提升消防人員水域救援能力。", "114.9.9 函發高風險水域救援演練計畫：盤點高風險水域並擇點演練。", "協調媒體刊登防溺常識。"], "updated": "115-10-20", "contact": "蕭專員清憶"}, {"id": "Q51", "title": "115.8.31南投縣濁水溪水域救援任務搜救同仁1殉職之處置情形？策進作為？", "group": "水域救援", "kw": "濁水溪, 南投, 殉職, 泛舟, 巴庫拉斯", "pts": ["115.8.31 南投信義分隊救援泛舟受困民眾，1 艇翻覆，1 名同仁殉職。", "已啟動南投縣與內政部災害事故調查會，職安團隊協助心理諮商。", "強化水域與船艇操作安全指導原則、運用無人機，並協調相關部會加強宣導。", "協助撫卹與心理輔導。"], "updated": "115-10-20", "contact": "蕭專員清憶"}, {"id": "Q14", "title": "執行強化山域意外事故救援機制及民力運用作為？(羅美玲委員)", "group": "山域救援", "kw": "山域, 山難, 民力, 民間協勤, 羅美玲", "pts": ["推動「提升山域事故救援效能五年中程計畫」（113–117 年），改善難找、難到、難救。", "補助裝備、訓練與衛星定位設備租賃（如 Garmin inReach）。", "民力協勤每年 360 萬元（5 年 1,800 萬元），13 縣市派遣民間專業人員；115 年起結案後核銷，更有彈性。"], "updated": "115-10-20", "contact": "陳專員文祥"}, {"id": "Q21", "title": "提升山域意外事故救援機制中程計畫執行情形。（時事）", "group": "山域救援", "kw": "山域中程計畫, 執行情形, 浮濫求援", "pts": ["「提升山域事故救援效能 5 年中程計畫」（113–117 年）行政院 112.4.27 核定，接續 106 年方案。", "目標：降低迷路與中高齡山難，解決難找、難到、難救。", "110.5.6 函頒浮濫求援處理措施，與教育、山域管理機關共同宣導、公開事故資訊。"], "updated": "115-10-20", "contact": "陳專員文祥"}, {"id": "Q22", "title": "鑑於近年山域事故呈增加之勢且為數頗鉅，允宜針對事故態樣及遇難高風險族群妥為宣導防範重點，俾降低事故發生？(時事)", "group": "山域救援", "kw": "山域宣導, 高風險族群, 登山留守", "pts": ["中程計畫推動 12 項工作，解決難找、難到、難救。", "補助民間維運登山留守平臺、租賃衛星定位設備，降低迷路與中高齡山難。", "函頒浮濫求援處理措施，與教育、山域管理機關強化宣導並公開事故資訊。"], "updated": "115-10-20", "contact": "陳專員文祥"}, {"id": "Q32", "title": "有關社群媒體人士及新聞報導質疑本署「提升山域事故救援效能 5 年中程計畫」執行公正性，本署立場為何？", "group": "山域救援", "kw": "山域計畫公正性, 收編, 教官, 社群爭議", "pts": ["各項計畫均依法行政，由中央與地方消防機關共同執行。", "沒有特定「教官」把持或圖利特定對象。", "呼籲外界勿以未經查證的訊息影響公務推動。"], "updated": "115-10-20", "contact": "陳專員文祥"}, {"id": "Q33", "title": "「提升山域事故救援效能 5 年中程計畫」執行進度、執行成效及歷年補助情形為何？", "group": "山域救援", "kw": "山域計畫執行進度, 成效, 補助", "pts": ["核定 113–117 年，7 億 4,962 萬元；本署辦 9 項（27%）、補助 13 縣市（73%）。", "115 年截至 9 月事故 284 件，較 114 年 486 件減少 41.56%。", "發生人數 381 人（減 42.36%），死亡 23 人（減 20.69%）。"], "updated": "115-10-20", "contact": "陳專員文祥"}, {"id": "Q46", "title": "山域中程計畫津貼發給實際參與搜救人員後續辦理情形以及高雄茂林紅塵峽谷救援案件後續辦理情形？(伍麗華委員)", "group": "山域救援", "kw": "山域津貼, 民間人力, 茂林, 紅塵峽谷, 伍麗華", "pts": ["每年 360 萬元（5 年 1,800 萬元）補助 13 縣市聘用民間專業團體協助救援。", "請縣市優先聘用原鄉部落人士。", "茂林紅塵峽谷案：高雄市消防局頒感謝狀給 13 位原住民，另發車輛 2 輛共 1 萬元。"], "updated": "115-10-20", "contact": "陳專員文祥"}, {"id": "Q02", "title": "是否將特定工廠列入搶救困難地區?", "group": "化災・核災・新能源", "kw": "特定工廠, 特登工廠, 搶救困難地區, 消防水源", "pts": ["特定工廠須依「特定工廠登記辦法」納管才能繼續使用。", "須符合消防安全設備設置標準、公共危險物品場所標準，並依外部水源檢核表改善消防水源。", "改善後搶救與一般工廠無異，不涉搶救困難地區議題；持續配合經濟部推動水源改善。"], "updated": "115-10-20", "contact": "吳科員東穎"}, {"id": "Q04", "title": "我國地震引發複合性災害之核災部分消防單位如何應變？", "group": "化災・核災・新能源", "kw": "核災, 核電廠, 複合性災害, 地震", "pts": ["廠內：核能安全委員會主導，依台電與地方消防局簽訂的支援協定執行。", "廠區外：派受核生化訓練人員與偵測、防護裝備到場。", "在核安會專業評估、防護裝備足夠下，依主管機關指導進行人命救助。"], "updated": "115-10-20", "contact": "謝技士承翰"}, {"id": "Q05", "title": "就目前全國化災搶救車輛、裝備器材及訓練是否足以因應各類危害物質事故搶救任務？", "group": "化災・核災・新能源", "kw": "化災, 化學車, 危害物質, 化災裝備, 化災訓練", "pts": ["全國化學消防車 221 輛、化學災害處理車 25 輛，各地依特性整備。", "「建構國家安全化學與韌性永續計畫」（114–118 年）補助防護衣、檢知、機器人、無人機等。", "化災搶救訓練累計 2 萬 3,317 人次；環境部毒災應變諮詢中心＋13 個專業技術小組支援。", "115.3.25 函頒指導原則：現場專業人員納入幕僚，共同提出搶救腹案。"], "updated": "115-10-20", "contact": "謝技士承翰"}, {"id": "Q17", "title": "消防員救災時除由工廠管理權人提供資訊外，是否有其他管道？化學雲系統內的資訊呈現與詳盡程度，是否足夠供消防員救災所需？", "group": "化災・核災・新能源", "kw": "化學雲, 工廠資訊, 119派遣系統, 圖資", "pts": ["119 派遣系統已介接消防水源、竣工圖說、公危場所配置圖及環境部化學雲。", "化學雲快報首頁已新增 GHS 圖示與工廠平面圖（112.12.26 完成）。", "經濟部工廠危險物品申報的平面圖已加入搶救必要資訊。"], "updated": "115-10-20", "contact": "謝技士承翰"}, {"id": "Q20", "title": "化學災害搶救精進作為及補助地方縣市採購化學災害搶救裝備補助情形。", "group": "化災・核災・新能源", "kw": "化災補助, 化災裝備, 化學韌性計畫", "pts": ["全國化學消防車 221 輛、化學災害處理車 25 輛。", "環境部毒災應變諮詢中心＋13 個技術小組支援。", "以「建構國家安全化學與韌性永續計畫」（114–118 年）補助地方化災車輛裝備器材。"], "updated": "115-10-20", "contact": "郭視察哲男"}, {"id": "Q26", "title": "「建構國家安全化學與韌性永續計畫」，維護消防設備性能及加強防救災相關訓練之作法？", "group": "化災・核災・新能源", "kw": "化學韌性計畫, 保養維護, 化災訓練", "pts": ["總經費 41 億 3,210 萬元（中央 25.6 億、地方 15.7 億）。", "受補助機關須提年度保養維護計畫並自編經費，本署辦理抽檢。", "每年辦化災搶救訓練班期，並推廣化學雲教育訓練影片。"], "updated": "115-10-20", "contact": "郭視察哲男、謝技士承翰"}, {"id": "Q35", "title": "建構國家安全化學與韌性永續計畫成果說明及115年推動項目？", "group": "化災・核災・新能源", "kw": "化學韌性計畫成果, 115年推動", "pts": ["114–118 年，滾動修正後 39 億 576 萬餘元（本署 23.3 億、地方 15.7 億）。", "114 年：補助 11 輛救災指揮車等車輛裝備，訓練 293 人，並優化訓練中心設施。", "115 年：開發 AI 指揮調度與化災決策系統，汰換裝備、強化訓練。"], "updated": "115-10-20", "contact": "郭視察哲男"}, {"id": "Q13", "title": "地下室電動車起火預防及搶救因應策略為何？", "group": "化災・核災・新能源", "kw": "電動車, 地下室, 停車場, 鋰電池火災", "pts": ["預防：電動車與電池須符合國家標準，充電設備依電業法與本署充電安全指引。", "電動車停車場應設自動滅火設備。", "搶救：依 NFPA 與車廠建議大量用水隔離降溫，降溫後拖至地面持續撒水。"], "updated": "115-10-20", "contact": "余專員家均"}, {"id": "Q28", "title": "鋰電池及儲能設施消防安全管理及搶救應變措施為何？", "group": "化災・核災・新能源", "kw": "鋰電池, 儲能, 儲能櫃, 綠能", "pts": ["運輸屬交通部；儲能案場依經濟部驗證規範及本部儲能系統消防安全管理指引。", "依 NFPA 建議大量用水隔離降溫，熱失控難撲滅時採防守策略並通風。", "訓練中心建置綠電、科技廠、電動車事故搶救訓練設施。"], "updated": "115-10-20", "contact": "蕭專員清憶"}, {"id": "Q49", "title": "張智倫委員：麥寮風機火災，目前消防署是否有主動研議搶救SOP或已有相關因應對策？", "group": "化災・核災・新能源", "kw": "風機, 風力發電, 麥寮, 張智倫", "pts": ["風機在濱海空曠處，雲梯車難接近，無人受困時以警戒管制、防碎片掉落為主。", "有人受困時，由營運單位、製造商與高空救援人員共同評估，安全前提下搜救。", "必要時指揮官得行使退避權；依 GWO 原則以風機內建逃生與繩索救援為主。"], "updated": "115-10-20", "contact": "蕭專員清憶、顏視察宏霖"}, {"id": "Q10", "title": "遙控無人機業務推動情形。", "group": "無人機・機器人・科技救災", "kw": "無人機, 操作證, 無人機訓練", "pts": ["各縣市消防機關無人機 420 架，均無大陸產品。", "高級操作證 522 人、基本級 678 人。", "114 年辦 2 梯次火場、水域、山域應用訓練，共 51 人。"], "updated": "115-10-20", "contact": "吳科員東穎"}, {"id": "Q12", "title": "消防機關採購無人機有何困難處？", "group": "無人機・機器人・科技救災", "kw": "無人機採購, 資安認證, 共同供應契約", "pts": ["困難：須採購通過資安認證機型，但通過的廠商與型號少。", "定期提供 TTC 通過資安檢測名單，並鼓勵廠商送驗。", "已向民航局反映困境；工程會推動無人機共同供應契約與採購指引。", "配合經濟部產業計畫全額補助地方購置。"], "updated": "115-10-20", "contact": "吳科員東穎"}, {"id": "Q25", "title": "110年底全面禁止各公務機關使用中國大陸製無人機後，有關大陸製無人機的後續處理情形及目前消防無人機之需求應用，本署之因應作為。", "group": "無人機・機器人・科技救災", "kw": "大陸製無人機, 禁陸, 非紅供應鏈", "pts": ["未達年限的大陸製無人機只作訓練用、不執行公務；達年限依規定報廢。", "115–118 年補助地方 4 億 6,420 萬元，購置 377 架。", "工程會採購指引明定國產化與非紅供應鏈。"], "updated": "115-10-20", "contact": "吳科員東穎"}, {"id": "Q31", "title": "遙控無人機國外產品比較。", "group": "無人機・機器人・科技救災", "kw": "無人機比較, Skydio, 國外產品", "pts": ["現有無人機 420 架，再補助 377 架，118 年達 797 架，目標每分隊 1 架。", "主流為美國 Skydio。", "X2 成熟穩定，適合一般偵查；X10 續航、通訊、抗風、夜間避障更強，適合複雜大範圍現場。"], "updated": "115-10-20", "contact": "吳科員東穎"}, {"id": "Q50", "title": "張智倫委員質詢臺北市政府消防局建議中央應建置無人機AI圖資辨識運算平台供全國消防機關使用辦理情形？", "group": "無人機・機器人・科技救災", "kw": "無人機AI, 圖資辨識, 張智倫, 搜救影像", "pts": ["114 年建置「無人機輔助搜救影像管理系統」，搭配 Skydio X10 回傳影像並結合 AI 辨識。", "無人機 420 架，均無大陸產品；高級操作證 522 人、基本級 678 人。"], "updated": "115-10-20", "contact": "吳科員東穎"}, {"id": "Q19", "title": "救災機器人採購及預定採購期程。", "group": "無人機・機器人・科技救災", "kw": "救災機器人, 機器人採購", "pts": ["全國現有救災機器人 169 台。", "化學韌性計畫 115–118 年補助 28 組；高科技廠房計畫補助 37 組。", "目標：每個消防分隊 1 台。"], "updated": "115-10-20", "contact": "吳科員東穎"}, {"id": "Q45", "title": "政府將消防預算花費在高價卻不實用的消防機器人，卻沒錢幫消防員換裝備，是誰的責任?(張啟楷委員)", "group": "無人機・機器人・科技救災", "kw": "機器人, 張啟楷, 裝備經費", "pts": ["救災機器人可先行進入資訊不明的火場，偵測氣體、射水防護。", "無人機廣泛用於山域、火場、水域搜救與即時監控。", "同步執行個人裝備中程計畫 19 億餘元，全額協助採購 14 種防護裝備、8 種常用器材。"], "updated": "115-10-20", "contact": "吳科員東穎"}, {"id": "Q24", "title": "有關消防人員運用科技裝備器材救災議題。", "group": "無人機・機器人・科技救災", "kw": "科技裝備, 熱顯像儀, 科技救災", "pts": ["熱顯像儀、無人機、救災機器人輔助偵察與滅火。", "地方依地方制度法自購，本署推動 23 項中程計畫、約 270 億元。", "以無人科技輔具降低工廠災害搶救風險，保障同仁安全。"], "updated": "115-10-20", "contact": "吳科員東穎"}, {"id": "Q07", "title": "有關消防人員裝備的配置部分，目前是否確實提供每位消防人員有2套消防衣褲? (麥玉珍委員)", "group": "裝備・車輛", "kw": "消防衣, 2套, 個人裝備, 麥玉珍", "pts": ["21 個縣市外勤人員已 100% 配發 2 套；全國比例 99.8%（統計至 115.6.30）。", "行政院 114.4.22 核定個人裝備中程計畫（113–115 年），特別統籌分配稅款 119 億餘元全額協助。", "其中消防衣褲 4,142 組。"], "updated": "115-10-20", "contact": "余專員家均"}, {"id": "Q23", "title": "竹市高樓火警2勇消殉職，管道間火警，燒出問題，雲梯車高度不足，如何進行救災？是否更精進消防員的裝備及以更科技化方式，提供消防員進入火場參考？說明消防搶救裝備補強情形。", "group": "裝備・車輛", "kw": "高樓火災, 管道間, 雲梯車, 晴空匯, 新竹", "pts": ["高樓火災以大樓本身消防安全設備與防火避難設施為主要搶救手段。", "運用熱顯像儀、無人機等科技裝備研判危害並入室救災。", "持續以中程計畫充實科技裝備，並充實雲梯車 39 輛。"], "updated": "115-10-20", "contact": "張專員瀞文"}, {"id": "Q30", "title": "共生面罩用途為何？是否是消防人員入室搜救的標配？消防人員提供共生面罩予民眾使用，對消防員本身是否會造成什麼風險？", "group": "裝備・車輛", "kw": "共生面罩, RIT, 入室搜救", "pts": ["從消防員氣瓶分出一路供受困者共用空氣。", "各消防機關陸續將共生面罩列為搜救小組（RIT）入室必要裝備，分隊依現場需求攜帶。", "風險：空氣消耗倍增、撤離受限、心理壓力。"], "updated": "115-10-20", "contact": "余專員家均"}, {"id": "Q37", "title": "消防員工作權益促進協會質疑消防人員裝備不足問題。 (消促會)", "group": "裝備・車輛", "kw": "裝備不足, 消促會, 中程計畫", "pts": ["推動 24 項中程計畫、總經費約 285 億元，協助地方充實廳舍、車輛、裝備。", "補助科技化無人載具，降低工廠災害搶救風險。"], "updated": "115-10-20", "contact": "郭視察哲男、張專員瀞文、余專員家均、吳科員東穎"}, {"id": "Q52", "title": "廖先翔委員：有關消防車考量電動化的可行性，或引進國外新式消防車輛?", "group": "裝備・車輛", "kw": "電動消防車, 電動化, 廖先翔", "pts": ["配置標準未限制動力來源，電動或油電消防車只要裝置符合規範即可採購。", "挑戰：長時間高負載的續航、廳舍電力、車重與裝備空間、維修依賴原廠。"], "updated": "115-10-20", "contact": "余專員家均"}, {"id": "Q06", "title": "消防法第20條之1及第27條之1相關子法執行推動情形說明。", "group": "消防三權・救災安全・事故調查", "kw": "消防法20條之1, 27條之1, 退避權, 調查會, 子法", "pts": ["子法已訂：危險性救災行動認定標準（109.4.22）、災害事故調查會設置辦法（114.6.1 全案修正）。", "退避權：111 年 4 件、113 年 2 件，112、114 年與 115 上半年皆 0 件。", "調查權：地方依設置辦法提供資料，本署持續參與各級調查會。"], "updated": "115-10-20", "contact": "許視察涵舜"}, {"id": "Q15", "title": "消防法資訊權、退避權及調查權執行推動情形說明。", "group": "消防三權・救災安全・事故調查", "kw": "消防三權, 資訊權, 退避權, 調查權", "pts": ["退避權：111–115 上半年共 6 件（111 年 4 件、113 年 2 件）。", "資訊權：工廠違規裁罰 4 件，共 337 萬元。", "調查權：110–115 年 8 案，5 案完成、3 案調查中（新店粗坑壩、基隆安樂、南投濁水溪）。"], "updated": "115-10-20", "contact": "許視察涵舜"}, {"id": "Q39", "title": "消防人員退避權之說明。", "group": "消防三權・救災安全・事故調查", "kw": "退避權, 消防法第20條之1", "pts": ["消防法第 20 條之1：無人命危害之虞時，得不執行危險性救災行動。", "109.4.22 訂定「危險性救災行動認定標準」。", "外勤每季填紀錄、首長確認後報署；111 年 4 件、113 年 2 件，其餘年度 0 件。"], "updated": "115-10-20", "contact": "許視察涵舜"}, {"id": "Q41", "title": "落實消防三權（包括救災救護分流）情形?", "group": "消防三權・救災安全・事故調查", "kw": "消防三權, 救災救護分流, 資訊權罰則", "pts": ["108 年入法，113.11.29 再修正，114.6.1 施行；未指派專人協助救災最高罰 1 千萬元。", "13,789 名外勤人員全數完訓；115 上半年宣導 12,411 家、演練 1,094 次。", "調查會已發布 5 份報告，3 案進行中。", "分流研究 114 年 9 月完成：最大挑戰是人力短缺，各地可依特性選方案試辦。"], "updated": "115-10-20", "contact": "許視察涵舜"}, {"id": "Q18", "title": "屏東明揚大火，內政部災害事故調查報告何時可完成，及如何具體落實?", "group": "消防三權・救災安全・事故調查", "kw": "明揚, 屏東大火, 調查報告", "pts": ["內政部 112.9.23 啟動調查會，共開 4 次會議。", "6 次訪談，累計 33 人，並赴現場勘查。", "調查報告已於 113.5.8 公布在內政部及本署網站。"], "updated": "115-10-20", "contact": "許視察涵舜"}, {"id": "Q44", "title": "針對監察院調查晴空匯火災案所提意見之處理情形為何?", "group": "消防三權・救災安全・事故調查", "kw": "監察院, 晴空匯, 新竹慈雲路, 調查意見", "pts": ["調查會 113.5.27 啟動，調查報告 115.2.11 公布。", "成立勤安會並修消防法增訂職安專章，配合訂定 6 項子法。", "113、114 年辦高階指揮幹部訓練；114 年起補助 43 套入室定位系統。", "全面落實事故安全官制度，並運用無人機偵察高樓火場。"], "updated": "115-10-20", "contact": "張專員瀞文"}, {"id": "Q29", "title": "是否訂有消防員在火場的保命SOP?", "group": "消防三權・救災安全・事故調查", "kw": "保命SOP, MAYDAY, 受困, 迷失", "pts": ["受困、迷失或氣源耗盡，立即呼叫 3 次 MAYDAY 並回報 LUNAR。", "進入有實體隔間的空間關門避難，開啟救命器並以燈光示位。", "低姿呼吸延長氣源，往窗邊或開口移動。", "可移動時沿水線或導光索撤離。"], "updated": "115-10-20", "contact": "張專員瀞文"}, {"id": "Q40", "title": "從指揮官到一線同仁？(消促會)", "group": "消防三權・救災安全・事故調查", "kw": "救災安全訓練, 指揮官訓練, 三層火場安全", "pts": ["三層火場安全管理：自我、小組、指揮安全管制，納入救災安全手冊。", "養成教育先取得證照；複訓由科長、大隊長逐層推到隊員，納入常年訓練。", "113、114 年辦高階指揮幹部訓練，115 年辦高科技廠房搶救共識營。"], "updated": "115-10-20", "contact": "張專員瀞文、喻科長宏祺"}, {"id": "Q09", "title": "美國消防隊員常在到達火場才完成著裝，先拉封鎖線，觀察火流、煙流，再決定如何部署勤務，但在臺灣若到場「沒有動作」，會被民眾罵翻，導致消防員壓力大、一定要在車上著裝。想問消防署對此是否有相關改善作為或構想？", "group": "消防三權・救災安全・事故調查", "kw": "著裝, 到場, 封鎖線, 火場指揮", "pts": ["依火場指揮及搶救作業要點：指揮中心沿途提供情資，指揮官到場劃定警戒區、交警察執行。", "分階段著裝：先穿消防衣褲鞋上車並繫安全帶，到場在安全環境再穿戴其他裝備。", "兼顧搶救時效與出勤安全。"], "updated": "115-10-20", "contact": "張專員瀞文"}, {"id": "Q16", "title": "若消防員在救災時不具備建築結構的知識，過去是否有專業人士陪同救災的案例。", "group": "消防三權・救災安全・事故調查", "kw": "建築結構, 結構技師, 專業人士陪同", "pts": ["災害防救法第 23 條：各級政府應調查整備民間救災機具與專業人力並建資料庫。", "各地特種搜救隊均已納入結構技師，運作機制完備。"], "updated": "115-10-20", "contact": "洪科長土容"}, {"id": "Q03", "title": "捕蜂捉蛇的執行單位是否已回歸到農政單位?", "group": "勤務・人力・回歸專業", "kw": "捕蜂捉蛇, 農政, 回歸專業, 1999", "pts": ["行政院 105、106 年協調定案：自 106 年起捕蜂捉蛇由農政單位主政。", "一般蜂蛇侵擾由農政委外廠商處理（1999）；被螫咬等危急狀況才打 119 救護。", "目前僅連江縣仍由消防局執行。"], "updated": "115-10-20", "contact": "連科員予綸"}, {"id": "Q34", "title": "建請參考警察體系備援人力模式，建立消防人員備援機制", "group": "勤務・人力・回歸專業", "kw": "備援人力, 跨轄支援, 消防力調度", "pts": ["已訂「各級消防機關災害搶救消防力調度支援作業要點」。", "人力或裝備不足時，可調度轄內機關、事業單位資源，或請求跨轄支援。"], "updated": "115-10-20", "contact": "余專員家均"}, {"id": "Q38", "title": "消防救災回歸專業，減少不必要勤業務。(消促會、張爸爸陳情)", "group": "勤務・人力・回歸專業", "kw": "回歸專業, 減少勤業務, 救災救護分流, 消促會", "pts": ["協調水域管理機關落實場域管理，從源頭減少防溺巡邏勤務。", "委託研究救災救護分流可行性，作為制度轉型參考。"], "updated": "115-10-20", "contact": "莊科長念恩"}, {"id": "Q11", "title": "救護車濫(誤)用之因應對策為何？", "group": "緊急救護・醫療整備", "kw": "救護車濫用, 誤用, 救護收費", "pts": ["收費標準依緊急醫療救護法第 20 條，屬地方衛生主管機關權責。", "已有 11 個縣市對不當使用酌予收費。", "加強宣導珍惜救護資源，並將防止濫（誤）用列入業務評核。"], "updated": "115-10-20", "contact": "莊科長念恩"}, {"id": "Q27", "title": "消防署「緊急醫療救護智能平臺-救急救難一站通推動計畫」之效益為何？", "group": "緊急救護・醫療整備", "kw": "一站通, 救急救難一站通, 救護紀錄電子化, 到院前預警", "pts": ["111 年 7 月起全國救護紀錄表全面電子化，統一資料交換標準，建置救護大數據資料庫。", "跨部會推動 4 大急重症到院前預警與院後預後回饋。", "已擴及全國 22 縣市、205 家急救責任醫院。"], "updated": "115-10-20", "contact": "徐技士上恩"}, {"id": "Q36", "title": "韌性國家醫療整備計畫成果說明及115年推動項目？", "group": "緊急救護・醫療整備", "kw": "韌性國家醫療整備, TECC, 止血帶, 擔架", "pts": ["113–116 年，滾動修正後 9 億 5,870 萬餘元。", "持續辦理全國消防救護人員 TECC 訓練。", "補助防護頭盔、防穿刺背心、止血帶、輕量化擔架、數位無線電，提升救護安全。"], "updated": "115-10-20", "contact": "李視察文靖"}, {"id": "Q42", "title": "「韌性國家醫療整備計畫」之115年度預算處理狀況及該計畫與消防人員職安、救生員訓練跟急流救生訓練關聯", "group": "緊急救護・醫療整備", "kw": "韌性醫療預算, 職安, 救生員, 急流救生", "pts": ["115 年預算：專案管理 635 萬元、特殊救護訓練 2,604 萬元、止血帶等裝備 2 億 2,718 萬元。", "職安依「建構消防人員工作安全衛生作業 5 年中程計畫」（114–118 年）推動。", "救生員與急流救生基礎訓練 17 梯次、約 750 人。"], "updated": "115-10-20", "contact": "李視察文靖、王科員芊榕莊辦事員喆勝"}, {"id": "Q47", "title": "為何消防救護人員要接受戰術緊急傷患救護(TECC)訓練?", "group": "緊急救護・醫療整備", "kw": "TECC, 戰術緊急傷患救護", "pts": ["提升救護人員在高風險、資源有限環境的救護能力。", "適用暴力攻擊、有害物質、火災爆炸、重大車禍、大量傷病患等情境。", "核心目標是挽救生命。"], "updated": "115-10-20", "contact": "李視察文靖"}, {"id": "Q48", "title": "有關115年度媒體宣導費預算運用及預期成效說明等，涉及車禍暨重型救援國際挑戰賽說明(600千元)", "group": "預算・宣導", "kw": "車禍救援挑戰賽, 媒體宣導費, 60萬", "pts": ["每 2 年辦 1 次車禍救援挑戰賽，國內 13 隊，另邀日本 3 隊、菲律賓 1 隊。", "參考世界救援組織賽制，設計高擬真情境。", "以社群媒體與直播互動宣導。"], "updated": "115-10-20", "contact": "余專員家均"}]};
+const $ = s => document.querySelector(s);
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm = s => s.toLowerCase().replace(/臺/g, '台').replace(/[\s,，、。？?「」()（）:：]/g, '');
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+const items = DATA.items.map(it => ({ ...it, hay: norm([it.id, it.title, it.kw, it.pts.join('')].join('')),
+  hayTitle: norm(it.title), hayKw: norm(it.kw) }));
+let group = null;
+
+const m = DATA.meta;
+$('#ver').innerHTML = `${esc(m.session)}｜QA 更新 <b>${esc(m.updated)}</b>｜共 ${items.length} 題`;
+
+// 主題鈕
+const chips = $('#chips');
+['全部', ...DATA.groups].forEach(g => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'chip'; b.textContent = g;
+  b.setAttribute('aria-pressed', g === '全部' ? 'true' : 'false');
+  b.onclick = () => { group = g === '全部' ? null : g; $('#q').value = ''; render(); window.scrollTo(0, 0); };
+  chips.appendChild(b);
+});
+
+function hl(text, terms) {
+  let out = esc(text);
+  terms.forEach(t => { if (t.length) out = out.split(esc(t)).join(`<mark>${esc(t)}</mark>`); });
+  return out;
+}
+
+function card(it, open, terms) {
+  return `<details class="q"${open ? ' open' : ''}>
+    <summary><span class="qid">${it.id}</span><span class="qt">${hl(it.title, terms)}</span></summary>
+    <div class="ans">
+      <ol>${it.pts.map(p => `<li><span>${hl(p, terms)}</span></li>`).join('')}</ol>
+      <div class="src"><span>依據：QA ${it.id}｜更新 ${esc(it.updated)}</span><span>承辦：${esc(it.contact)}</span></div>
+    </div>
+  </details>`;
+}
+
+function render() {
+  const raw = $('#q').value.trim();
+  $('#clear').hidden = !raw;
+  chips.querySelectorAll('.chip').forEach(b =>
+    b.setAttribute('aria-pressed', String((group || '全部') === b.textContent && !raw)));
+  const list = $('#list');
+  if (raw) {
+    const terms = raw.split(/\s+/);
+    const nt = terms.map(norm).filter(Boolean);
+    const hits = items.filter(it => nt.every(t => it.hay.includes(t)))
+      .map(it => ({ it, s: nt.reduce((s, t) => s + (it.hayTitle.includes(t) ? 2 : 0) + (it.hayKw.includes(t) ? 1 : 0), 0) }))
+      .sort((a, b) => b.s - a.s).map(x => x.it);
+    list.innerHTML = hits.length
+      ? `<div class="status">找到 ${hits.length} 題</div>` + hits.map((it, i) => card(it, i < 3, terms)).join('')
+      : `<div class="empty"><b>QA 沒有這題。</b><br>換個說法再試，例如用簡短的名詞；或請 Claude 從 KM 查。</div>`;
+    return;
+  }
+  const gs = group ? [group] : DATA.groups;
+  list.innerHTML = gs.map(g => `<div class="group-h">${esc(g)}</div>` +
+    items.filter(it => it.group === g).map(it => card(it, !!group, [])).join('')).join('');
+}
+
+let t;
+$('#q').addEventListener('input', () => { clearTimeout(t); t = setTimeout(render, 120); });
+$('#q').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
+$('#clear').onclick = () => { $('#q').value = ''; render(); $('#q').focus(); };
+
+const steps = [0.9, 1, 1.1, 1.2, 1.35, 1.5];
+let si = steps.indexOf(Number(store.get('qa-scale'))); if (si < 0) si = 2;
+function applyScale() { document.documentElement.style.setProperty('--scale', steps[si]); store.set('qa-scale', String(steps[si])); }
+$('#smaller').onclick = () => { si = Math.max(0, si - 1); applyScale(); };
+$('#bigger').onclick = () => { si = Math.min(steps.length - 1, si + 1); applyScale(); };
+applyScale();
+render();
+</script>
+</body>
+</html>
