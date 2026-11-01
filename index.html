@@ -295,7 +295,7 @@ select option{background:var(--surface-raised);color:var(--ink)}
   <div class="header-tools">
     <div class="font-controls" role="group" aria-label="字級控制">
       <button type="button" id="fontDown" aria-label="縮小字級">A−</button>
-      <button type="button" id="fontReset" aria-label="切換字級">A</button>
+      <button type="button" id="fontReset" aria-label="回到預設字級" title="回到預設字級（120%）">A</button>
       <button type="button" id="fontUp" aria-label="放大字級">A＋</button>
       <span id="fontScaleLabel" aria-live="polite">120%</span>
     </div>
@@ -2459,8 +2459,8 @@ let modalOrigin=null,modalPlaceholder=null;
 function openChartModal(card){const modal=document.getElementById('chartModal'),body=document.getElementById('modalBody');modalOrigin=card.parentNode;modalPlaceholder=document.createComment('chart-card-origin');modalOrigin.insertBefore(modalPlaceholder,card);document.getElementById('modalTitle').textContent=card.querySelector('.card-title')?.textContent.trim()||'圖表放大檢視';body.appendChild(card);modal.hidden=false;document.body.style.overflow='hidden';setTimeout(()=>Object.values(charts).forEach(c=>c.resize()),30)}
 function closeChartModal(){const modal=document.getElementById('chartModal');if(modal.hidden)return;const card=document.getElementById('modalBody').firstElementChild;if(modalPlaceholder?.parentNode&&card){card.querySelectorAll('canvas').forEach(cv=>{cv.style.width='';cv.style.height=''});modalPlaceholder.parentNode.insertBefore(card,modalPlaceholder);modalPlaceholder.remove();modalPlaceholder=null;card.querySelectorAll('canvas').forEach(cv=>Chart.getChart(cv)?.resize())}modal.hidden=true;document.body.style.overflow='';setTimeout(()=>Object.values(charts).forEach(c=>c.resize()),30)}
 
-const FONT_LEVELS=[1,1.2,1.4,1.65];let fontLevel=1;
-function applyFontLevel(i){fontLevel=Math.max(0,Math.min(FONT_LEVELS.length-1,i));const scale=FONT_LEVELS[fontLevel];document.documentElement.style.setProperty('--ui-scale',scale);document.documentElement.dataset.fontLevel=fontLevel;document.getElementById('fontScaleLabel').textContent=Math.round(scale*100)+'%';try{localStorage.setItem('ems-font-level',String(fontLevel))}catch(e){};Chart.defaults.font.size=Math.round(13*(window.innerWidth<600?1+(scale-1)*0.55:scale));Chart.defaults.font.family='-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';Object.values(charts).forEach(c=>{scaleChartFonts(c.config.options,scale);c.resize();c.update('none')})}
+const FONT_LEVELS=[1,1.2,1.4,1.65],DEFAULT_FONT_LEVEL=1;let fontLevel=DEFAULT_FONT_LEVEL;
+function applyFontLevel(i){fontLevel=Math.max(0,Math.min(FONT_LEVELS.length-1,i));const scale=FONT_LEVELS[fontLevel];document.documentElement.style.setProperty('--ui-scale',scale);document.documentElement.dataset.fontLevel=fontLevel;document.getElementById('fontScaleLabel').textContent=Math.round(scale*100)+'%';try{localStorage.setItem('ems-font-level',String(fontLevel))}catch(e){};Chart.defaults.font.size=Math.round(13*(window.innerWidth<600?1+(scale-1)*0.55:scale));Chart.defaults.font.family='-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';if(Object.keys(charts).length&&typeof renderTab==='function'){if(!document.getElementById('chartModal')?.hidden)closeChartModal();renderTab(activeTab)}}
 function syncChartPalette(dark){
   activeChartPalette=chartPaletteFromTokens(!dark);
   const p=activeChartPalette;
@@ -2522,7 +2522,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.querySelector('.tab-btn[data-tab="full"]').classList.add('active');document.getElementById('tab-full').classList.add('active');
   try{const raw=localStorage.getItem('ems-font-level');const saved=raw===null?NaN:Number(raw);fontLevel=Number.isInteger(saved)?saved:1}catch(e){fontLevel=1}applyFontLevel(fontLevel);
   let mode='system';try{mode=localStorage.getItem('ems-theme')||'system'}catch(e){}applyTheme(mode);
-  document.getElementById('fontDown').onclick=()=>applyFontLevel(fontLevel-1);document.getElementById('fontUp').onclick=()=>applyFontLevel(fontLevel+1);document.getElementById('fontReset').onclick=()=>applyFontLevel((fontLevel+1)%FONT_LEVELS.length);
+  document.getElementById('fontDown').onclick=()=>applyFontLevel(fontLevel-1);document.getElementById('fontUp').onclick=()=>applyFontLevel(fontLevel+1);document.getElementById('fontReset').onclick=()=>applyFontLevel(DEFAULT_FONT_LEVEL);
   document.getElementById('themeBtn').onclick=()=>{const m=document.getElementById('themeBtn').dataset.mode||'system';applyTheme(m==='system'?'light':m==='light'?'dark':'system')};
   document.getElementById('filterToggle').onclick=()=>openFilters(true);document.getElementById('filterClose').onclick=()=>openFilters(false);document.getElementById('filterBackdrop').onclick=()=>openFilters(false);
   document.getElementById('modalClose').onclick=closeChartModal;document.addEventListener('keydown',e=>{if(e.key==='Escape')closeChartModal()});
